@@ -29,11 +29,8 @@ int main(int ac, char** av) {
             ("address", po::value<string>(&ServerAddress)->default_value("0.0.0.0"), "address to listen on [ip]")
             ("port", po::value<uint16_t>(&ServerPort)->default_value(50051), "port listening on [port], can also be set with PORT environment variable");
 
-    if(const char* port = getenv("PORT")) {
-        ServerAddress = ServerAddress + ":" + port;
-    } else {
-        ServerAddress = ServerAddress + ":" + to_string(ServerPort);
-    }
+
+    ServerAddress = ServerAddress + ":" + to_string(ServerPort);
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -45,7 +42,7 @@ int main(int ac, char** av) {
     }
 
     // Run server
-    std::cout << "Running server on " << ServerAddress << ServerPort << std::endl;
+    std::cout << "Running server on " << ServerAddress << ":" << ServerPort << std::endl;
     RunServer(ServerAddress);
 
     return 0;
