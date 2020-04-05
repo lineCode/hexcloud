@@ -8,7 +8,7 @@ on:
 # Environment variables available to all jobs and steps in this workflow
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  RUN_REGION: us-west3
+  RUN_REGION: us-east1
   SERVICE_NAME: hexcloud
 
 jobs:
