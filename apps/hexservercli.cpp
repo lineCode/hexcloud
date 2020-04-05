@@ -21,16 +21,16 @@ void RunServer(const string ServerAddress) {
 
 
 int main(int ac, char** av) {
-    string ServerAddress;
-    uint16_t ServerPort;
+    string ServerAddress = "0.0.0.0";
+    int ServerPort = 8080;
     po::options_description desc("Hexagon server options");
     desc.add_options()
             ("help", "help message")
             ("address", po::value<string>(&ServerAddress)->default_value("0.0.0.0"), "address to listen on [ip]")
-            ("port", po::value<uint16_t>(&ServerPort)->default_value(8080), "port listening on [port], can also be set with PORT environment variable");
+            ("port", po::value<int>(&ServerPort)->default_value(8080), "port listening on [port], can also be set with PORT environment variable");
 
 
-    ServerAddress = ServerAddress + ":" + to_string(ServerPort);
+    auto ServerAddressPort = ServerAddress + ":" + to_string(ServerPort);
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -42,8 +42,8 @@ int main(int ac, char** av) {
     }
 
     // Run server
-    std::cout << "Running server on " << ServerAddress << ":" << ServerPort << std::endl;
-    RunServer(ServerAddress);
+    std::cout << "Running server on " << ServerAddressPort << std::endl;
+    RunServer(ServerAddressPort);
 
     return 0;
 }
