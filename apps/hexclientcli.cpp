@@ -66,7 +66,7 @@ int main(int ac, char** av) {
     po::options_description desc("Hexagon client options");
     desc.add_options()
             ("help", "help message")
-            ("address", po::value<string>(&ServerAddress)->default_value("127.0.0.1:50051"), "address to connect to [ip:port]");
+            ("address", po::value<string>(&ServerAddress)->default_value("hexcloud-j6feiuh7aa-ue.a.run.app"), "address to connect to [ip:port]");
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);

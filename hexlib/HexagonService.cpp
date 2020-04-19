@@ -5,14 +5,18 @@ Status HexagonService::GetHexagonRing(::grpc::ServerContext *context, const ::he
                                       ::hexagon::HexCubeResponse *response) {
     auto hexpb = request->ha();
     auto result = HexagonLibrary::Ring(Hexagon(hexpb.x(), hexpb.y(), hexpb.z()), request->radius());
+    std::cout << "Request: X: " << hexpb.x() << " Y: " << hexpb.y() << " Z: " << hexpb.z() << std::endl;
 
     google::protobuf::RepeatedPtrField<Hex> hexpbv;
     for(auto hex : result) {
+        std::cout << "Response: Q: " << hex.Q << " R: " << hex.R << " S: " << hex.S << std::endl;
         auto hexpb = response->mutable_hc()->Add();
         hexpb->set_x(hex.Q);
         hexpb->set_y(hex.R);
         hexpb->set_z(hex.S);
     }
+
+
 
     return Status::OK;
 }
