@@ -27,10 +27,8 @@ int main(int ac, char** av) {
     desc.add_options()
             ("help", "help message")
             ("address", po::value<string>(&ServerAddress)->default_value("0.0.0.0"), "address to listen on [ip]")
-            ("port", po::value<int>(&ServerPort)->default_value(8080), "port listening on [port], can also be set with PORT environment variable");
+            ("port", po::value<int>(&ServerPort)->default_value(8080), "port listening on [port], can be overridden by PORT environment variable");
 
-
-    auto ServerAddressPort = ServerAddress + ":" + to_string(ServerPort);
 
     po::variables_map vm;
     po::store(po::parse_command_line(ac, av, desc), vm);
@@ -40,6 +38,20 @@ int main(int ac, char** av) {
         std::cout << desc << "\n";
         return 1;
     }
+
+    ServerPort = vm["port"].as<int>();
+
+
+    char* P =std::getenv("PORT");
+    if(P != NULL) {
+        ServerPort = std::atoi(P);
+        std::cout << "port set by PORT environment variable" << std::endl;
+    } else {
+        ServerPort = vm["port"].as<int>();
+    }
+    ServerAddress = vm["address"].as<string>();
+
+    auto ServerAddressPort = ServerAddress + ":" + to_string(ServerPort);
 
     // Run server
     std::cout << "Running server on " << ServerAddressPort << std::endl;
