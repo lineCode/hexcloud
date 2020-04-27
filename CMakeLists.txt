@@ -36,8 +36,8 @@ find_package(GRPC)
 IF(NOT GRPC_FOUND)
     FetchContent_Declare(
             grpc
-            GIT_REPOSITORY https://github.com/3vilM33pl3/grpc
-            GIT_TAG        master)
+            GIT_REPOSITORY https://github.com/grpc/grpc.git
+            GIT_TAG        v1.28.1)
     FetchContent_MakeAvailable(grpc)
 ENDIF()
 
