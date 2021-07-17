@@ -26,7 +26,7 @@ RUN apk upgrade && \
 
 COPY . /src
 WORKDIR /src
-RUN cmake .
+RUN sudo cmake .
 RUN make -j16
 RUN make install
 
