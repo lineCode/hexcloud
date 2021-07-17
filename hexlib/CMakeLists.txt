@@ -41,8 +41,10 @@ add_custom_command(
         --cpp_out="${CMAKE_CURRENT_BINARY_DIR}"
         -I "${PROTO_PATH}"
         --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${PROTO_FILE}"
+        "/src/hexlib/hexagon.proto"
         DEPENDS "${PROTO_FILE}")
+#        "${PROTO_FILE}"
+#        DEPENDS "${PROTO_FILE}")
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
