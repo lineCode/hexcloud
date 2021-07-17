@@ -8,6 +8,7 @@ IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/hexagon.proto)
 ELSEIF()
     # Proto file
     # Get file from hexcom project (single source of truth
+    message("No proto file, downloading")
     set(HEXCOM_PROTO_URL https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto SHOW_PROGRESS)
     set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
     file(DOWNLOAD ${HEXCOM_PROTO_URL} ${PROTO_FILE_LOCAL})
