@@ -24,6 +24,8 @@ RUN apk upgrade && \
         grpc-cli \
         libunwind
 
+RUN mkdir -p ./hexlib
+RUN wget https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto ./hexlib/hexagon.proto
 COPY . /src
 WORKDIR /src
 RUN mkdir -p /src/hexlib
