@@ -25,10 +25,9 @@ RUN apk upgrade && \
         libunwind
 
 RUN mkdir -p ./hexlib
-RUN wget https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto -P ./hexlib/
+RUN wget https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto
 COPY . /src
 WORKDIR /src
-RUN mkdir -p /src/hexlib
 RUN cmake .
 RUN make -j16
 RUN make install

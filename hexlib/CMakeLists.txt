@@ -1,18 +1,14 @@
 set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 
-message("Directory")
-message(${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
 
-FILE(GLOB children  ${curdir}/*)
-message(${children})
-
-
-IF(NOT ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
+IF(NOT hexagon.proto)
     # Proto file
     # Get file from hexcom project (single source of truth
     set(HEXCOM_PROTO_URL https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto SHOW_PROGRESS)
     set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
     file(DOWNLOAD ${HEXCOM_PROTO_URL} ${PROTO_FILE_LOCAL})
+ELSEIF()
+    set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/hexagon.proto)
 ENDIF()
 
 get_filename_component(PROTO_FILE ${PROTO_FILE_LOCAL} ABSOLUTE)
