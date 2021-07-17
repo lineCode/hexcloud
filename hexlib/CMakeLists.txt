@@ -40,7 +40,7 @@ add_custom_command(
         -I "${PROTO_PATH}"
         --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${PROTO_FILE}"
-        DEPENDS "${PROTO_FILE}")
+        DEPENDS "${PROTO_FILE_LOCAL}")
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
