@@ -26,6 +26,7 @@ RUN apk upgrade && \
 
 COPY . /src
 WORKDIR /src
+RUN mkdir /src/hexlib
 RUN cmake .
 RUN make -j16
 RUN make install
