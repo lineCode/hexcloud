@@ -3,6 +3,7 @@ set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
 
 IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/hexagon.proto)
+    message("Proto file exist")
     set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/hexagon.proto)
 ELSEIF()
     # Proto file
