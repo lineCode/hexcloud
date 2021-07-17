@@ -1,5 +1,7 @@
 set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 
+message("Directory")
+message(${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
 
 IF(NOT ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
     # Proto file
