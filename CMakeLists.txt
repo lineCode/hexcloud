@@ -19,6 +19,12 @@ IF (WIN32)
     set(Boost_NO_SYSTEM_PATHS ON)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_LIB_VERSION vc120)
+    # ASM compile fails for 64 bit builds
+    set(OPENSSL_NO_ASM ON)
+ENDIF()
+
+IF(MSVC)
+    SET(CMAKE_CXX_FLAGS "/Zc:__cplusplus /EHsc")
 ENDIF()
 
 find_package(Boost REQUIRED COMPONENTS program_options)
@@ -32,12 +38,23 @@ IF(NOT Protobuf_FOUND)
     )
 ENDIF()
 
+set(gRPC_BUILD_GRPC_CPP_PLUGIN ON)
+set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_NODE_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_RUBY_PLUGIN  OFF)
+set(gRPC)
+
+set(gRPC_USE_PROTO_LITE OFF)
+
 find_package(GRPC)
 IF(NOT GRPC_FOUND)
     FetchContent_Declare(
             grpc
             GIT_REPOSITORY https://github.com/grpc/grpc.git
-            GIT_TAG        v1.28.1)
+            GIT_TAG        v1.38.1)
     FetchContent_MakeAvailable(grpc)
 ENDIF()
 

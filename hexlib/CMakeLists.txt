@@ -1,8 +1,14 @@
 set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 
 # Proto file
-get_filename_component(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/protos/hexagon.proto ABSOLUTE)
-get_filename_component(PROTO_PATH "${PROTO_FILE}" PATH)
+# Get file from hexcom project (single source of truth
+set(HEXCOM_PROTO_URL https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto SHOW_PROGRESS)
+set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
+file(DOWNLOAD ${HEXCOM_PROTO_URL} ${PROTO_FILE_LOCAL})
+
+
+get_filename_component(PROTO_FILE ${PROTO_FILE_LOCAL} ABSOLUTE)
+get_filename_component(PROTO_PATH "${PROTO_FILE_LOCAL}" PATH)
 
 IF(GRPC_FOUND)
     set(PROTOC_EXECUTABLE /usr/bin/protoc)
