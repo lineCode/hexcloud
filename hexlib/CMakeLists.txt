@@ -3,7 +3,7 @@ set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 message("Directory")
 message(${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
 
-FILE(GLOB children RELATIVE /src/ /src/*)
+FILE(GLOB children  ${curdir}/*)
 message(${children})
 
 
