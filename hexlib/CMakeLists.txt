@@ -2,9 +2,9 @@ set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 
 set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
 
-IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/hexagon.proto)
+IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/hexlib/hexagon.proto)
     message("Proto file exist")
-    set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/hexagon.proto)
+    set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/hexlib/hexagon.proto)
 ELSEIF()
     # Proto file
     # Get file from hexcom project (single source of truth
@@ -41,7 +41,7 @@ add_custom_command(
         --cpp_out="${CMAKE_CURRENT_BINARY_DIR}"
         -I "${PROTO_PATH}"
         --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${PROTO_FILE_LOCAL}"
+        "${PROTO_FILE}"
         DEPENDS "${PROTO_FILE}")
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
