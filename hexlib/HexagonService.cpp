@@ -23,6 +23,10 @@ Status HexagonService::GetHexagonRing(::grpc::ServerContext *context, const ::he
         }
     }
 
+    auto hexpbcenter = response->mutable_hc()->Add();
+    hexpbcenter->set_x(hexpb.x());
+    hexpbcenter->set_y(hexpb.y());
+    hexpbcenter->set_z(hexpb.z());
 
     return Status::OK;
 }
