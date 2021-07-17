@@ -3,6 +3,10 @@ set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 message("Directory")
 message(${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
 
+FILE(GLOB children RELATIVE /src/ /src/*)
+message(${children})
+
+
 IF(NOT ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
     # Proto file
     # Get file from hexcom project (single source of truth
