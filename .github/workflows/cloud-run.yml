@@ -35,12 +35,12 @@ jobs:
       # Build and push image to Google Container Registry
       - name: Build
         run: |
-          gcloud builds submit -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA --timeout 20m
+          sudo gcloud builds submit -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA --timeout 20m
 
       # Deploy image to Cloud Run
       - name: Deploy
         run: |
-          gcloud run deploy $SERVICE_NAME \
+          sudo gcloud run deploy $SERVICE_NAME \
             --region $RUN_REGION \
             --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
             --platform managed \
