@@ -4,7 +4,7 @@ set(HEADER_LIST "${hexgrpc_SOURCE_DIR}/include/hexlib/hexgrpc.hpp")
 # Get file from hexcom project (single source of truth
 set(HEXCOM_PROTO_URL https://raw.githubusercontent.com/3vilM33pl3/hexcom/master/lib/protos/hexagon.proto SHOW_PROGRESS)
 set(PROTO_FILE_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/hexagon.proto)
-file(DOWNLOAD ${HEXCOM_PROTO_URL} ${PROTO_FILE_LOCAL} LOG ${DOWNLOAD_LOG})
+file(DOWNLOAD ${HEXCOM_PROTO_URL} ${PROTO_FILE_LOCAL} LOG DOWNLOAD_LOG)
 message(${DOWNLOAD_LOG})
 
 get_filename_component(PROTO_FILE ${PROTO_FILE_LOCAL} ABSOLUTE)
