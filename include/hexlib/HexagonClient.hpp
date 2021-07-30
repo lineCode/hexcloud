@@ -1,7 +1,7 @@
 #pragma once
 
 #include <grpc++/grpc++.h>
-#include "hexagon.grpc.pb.h"
+#include "proto/hexagon.grpc.pb.h"
 #include "HexagonLibrary.hpp"
 
 using grpc::Channel;

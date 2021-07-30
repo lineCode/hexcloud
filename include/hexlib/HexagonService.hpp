@@ -1,7 +1,7 @@
 #pragma once
 
 #include <grpc++/grpc++.h>
-#include <hexagon.grpc.pb.h>
+#include <proto/hexagon.grpc.pb.h>
 #include <hexlib/HexagonLibrary.hpp>
 
 using grpc::Server;
@@ -15,6 +15,7 @@ using hexagon::ConversionRequest;
 
 
 class HexagonService final : public hexagon::HexagonService::Service {
+    void ReadHexData();
 public:
     Status GetHexagonRing(::grpc::ServerContext *context, const ::hexagon::HexagonRingRequest *request,
                           ::hexagon::HexCubeResponse *response) override;

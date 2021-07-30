@@ -20,6 +20,7 @@ Status HexagonService::GetHexagonRing(::grpc::ServerContext *context, const ::he
             hexpb->set_x(hex.Q);
             hexpb->set_y(hex.R);
             hexpb->set_z(hex.S);
+            hexpb->set_type("0000-0000-0000-0000");
         }
     }
 
@@ -29,4 +30,8 @@ Status HexagonService::GetHexagonRing(::grpc::ServerContext *context, const ::he
     hexpbcenter->set_z(hexpb.z());
 
     return Status::OK;
+}
+
+void HexagonService::ReadHexData() {
+
 }
