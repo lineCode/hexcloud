@@ -1,45 +1,8 @@
-FROM alpine:3.11.5 AS build
+FROM golang:1.16-alpine AS build
 
-RUN apk upgrade && \
-    apk --update --no-cache add \
-        gcc \
-        g++ \
-        build-base \
-        autoconf \
-        automake \
-        libtool \
-        cmake \
-        libstdc++ \
-        git \
-        boost-dev \
-        boost-program_options \
-        bash \
-        vim \
-        zlib \
-        zlib-dev \
-        c-ares \
-        c-ares-dev \
-        grpc \
-        grpc-dev \
-        grpc-cli \
-        libunwind
-
-RUN mkdir -p ./hexlib
-COPY . /src
 WORKDIR /src
-RUN cmake .
-RUN make -j16
-RUN make install
-
-FROM alpine:3.11
-
-RUN apk upgrade && \
-    apk --update --no-cache add \
-        libstdc++ \
-        boost-program_options \
-        zlib \
-        c-ares \
-        grpc
-
-COPY --from=build /src/apps/hexgrpc_server ./
-CMD ["./hexgrpc_server"]
+COPY . .
+RUN go build -o /out/hexcloud .
+FROM scratch AS bin
+COPY --from=build /out/hexcloud /
+CMD("/out/hexcloud")
