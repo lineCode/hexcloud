@@ -1,10 +1,10 @@
 package main
 
 import (
-    "context"
+	"context"
 	"flag"
 	"google.golang.org/grpc"
-	hexcloud "hexcloud/internal/pkg/hexcloud"
+	"hexcloud/internal/pkg/hexcloud"
 	"hexcloud/internal/pkg/hexgrid"
 	"log"
 	"net"
@@ -15,7 +15,7 @@ type server struct {
 }
 
 func (s *server) GetHexagonRing(ctx context.Context, request *hexcloud.HexagonRingRequest) (*hexcloud.HexCubeResponse, error) {
-	var hc  []*hexcloud.Hex;
+	var hc []*hexcloud.Hex
 	maxStep := 1
 	if request.Fill {
 		maxStep = int(request.Radius)
@@ -27,7 +27,7 @@ func (s *server) GetHexagonRing(ctx context.Context, request *hexcloud.HexagonRi
 			Y: request.Ha.Y,
 			Z: request.Ha.Z,
 		},
-			request.Radius -int64(step))
+			request.Radius-int64(step))
 
 		for _, h := range result {
 			hc = append(hc, &hexcloud.Hex{
@@ -53,7 +53,7 @@ func (s *server) GetHexagonRing(ctx context.Context, request *hexcloud.HexagonRi
 
 func main() {
 	var address string
-	flag.StringVar(&address, "address", "0.0.0.0:8080", "address and port number to listen on" )
+	flag.StringVar(&address, "address", "0.0.0.0:8080", "address and port number to listen on")
 	flag.Parse()
 
 	hs := hexcloud.NewHexStorage()
