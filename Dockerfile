@@ -15,6 +15,5 @@ RUN rm -rf /var/cache/apk/*
 COPY --from=build --chown=65534:0 /go/bin/hexcloud /go/bin/api
 
 USER 65534
-EXPOSE 8080
 
 ENTRYPOINT ["/go/bin/hexcloud"]

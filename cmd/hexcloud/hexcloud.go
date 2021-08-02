@@ -8,6 +8,7 @@ import (
 	"hexcloud/internal/pkg/hexgrid"
 	"log"
 	"net"
+	"os"
 )
 
 type server struct {
@@ -55,6 +56,11 @@ func main() {
 	var address string
 	flag.StringVar(&address, "address", "0.0.0.0:8080", "address and port number to listen on")
 	flag.Parse()
+
+	port, set := os.LookupEnv("PORT")
+	if set {
+		address = "0.0.0.0:" + port
+	}
 
 	hs := hexcloud.NewHexStorage()
 	hs.RetrieveHexData()
