@@ -3,12 +3,8 @@ FROM golang:1.16-alpine AS build
 RUN apk update && apk add --no-cache git make
 
 WORKDIR $GOPATH/src/github.com/3vilM33pl3/hexcloud
-COPY . .
 
-RUN go mod init
-RUN go mod tidy
-RUN go mod download
-
+COPY . ./
 RUN go build -o /go/bin/hexcloud ./cmd/hexcloud
 
 FROM alpine:latest
