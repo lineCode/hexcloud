@@ -12,7 +12,7 @@ FROM alpine:latest
 RUN apk update && apk add --no-cache curl ca-certificates
 RUN rm -rf /var/cache/apk/*
 
-COPY --from=build --chown=65534:0 /go/bin/hexcloud /go/bin/api
+COPY --from=build --chown=65534:0 /go/bin/hexcloud /go/bin/hexcloud
 
 USER 65534
 
