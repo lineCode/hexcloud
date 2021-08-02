@@ -2,5 +2,5 @@
 
 ## Build
 ```bash
-docker build -t hexcloud .
+docker build -f ./deploy/heexcloud/Dockerfile -t hexcloud .
 ```
