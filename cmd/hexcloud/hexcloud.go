@@ -4,18 +4,19 @@ import (
 	"context"
 	"flag"
 	"google.golang.org/grpc"
-	"hexcloud/internal/pkg/hexcloud"
+	hexcloud "hexcloud/internal/pkg/hexcloud"
 	"hexcloud/internal/pkg/hexgrid"
 	"log"
 	"net"
 	"os"
 )
 
-type server struct {
+type Server struct {
+	hs *hexcloud.HexStorage
 	hexcloud.UnimplementedHexagonServiceServer
 }
 
-func (s *server) GetHexagonRing(ctx context.Context, request *hexcloud.HexagonRingRequest) (*hexcloud.HexCubeResponse, error) {
+func (s *Server) GetHexagonRing(ctx context.Context, request *hexcloud.HexagonRingRequest) (*hexcloud.HexCubeResponse, error) {
 	var hc []*hexcloud.Hex
 	maxStep := 1
 	if request.Fill {
@@ -31,12 +32,21 @@ func (s *server) GetHexagonRing(ctx context.Context, request *hexcloud.HexagonRi
 			request.Radius-int64(step))
 
 		for _, h := range result {
+
+			hexType := "0000-0000-0000-0000"
+			hexDirection := "N"
+			hex, ok := s.hs.Hexstore[hexcloud.HexQR{h.X, h.Y}]
+			if ok {
+				hexType = hex.Type
+				hexDirection = hex.Direction
+			}
+
 			hc = append(hc, &hexcloud.Hex{
 				X:         h.X,
 				Y:         h.Y,
 				Z:         h.Z,
-				Type:      "0000-0000-0000-0000",
-				Direction: "N",
+				Type:      hexType,
+				Direction: hexDirection,
 			})
 		}
 	}
@@ -70,8 +80,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	hexcloud.RegisterHexagonServiceServer(s, &server{})
-	log.Printf("server listining on: %v", listen.Addr())
+	hexcloud.RegisterHexagonServiceServer(s, &Server{hs, hexcloud.UnimplementedHexagonServiceServer{}})
+	log.Printf("Server listining on: %v", listen.Addr())
 	if err := s.Serve(listen); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

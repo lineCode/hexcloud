@@ -8,22 +8,22 @@ import (
 	"strconv"
 )
 
-type hexQR struct {
-	q int64
-	r int64
+type HexQR struct {
+	Q int64
+	R int64
 }
 
-type hexStorage struct {
-	hexstore map[hexQR]*Hex
+type HexStorage struct {
+	Hexstore map[HexQR]*Hex
 }
 
-func NewHexStorage() *hexStorage {
-	hs := &hexStorage{}
-	hs.hexstore = make(map[hexQR]*Hex)
+func NewHexStorage() *HexStorage {
+	hs := &HexStorage{}
+	hs.Hexstore = make(map[HexQR]*Hex)
 	return hs
 }
 
-func (h *hexStorage) RetrieveHexData() {
+func (h *HexStorage) RetrieveHexData() {
 	ctx := context.Background()
 	//projectID := "robot-motel"
 	bucketName := "hexworld"
@@ -38,7 +38,7 @@ func (h *hexStorage) RetrieveHexData() {
 	bucket := client.Bucket(bucketName)
 	rc, err := bucket.Object(fileName).NewReader(ctx)
 	if err != nil {
-		log.Printf("readFile: unable to open file from bucket %q, file %q: %v", bucketName, fileName, err)
+		log.Printf("readFile: unable to open file from bucket %Q, file %Q: %v", bucketName, fileName, err)
 		return
 	}
 	defer rc.Close()
@@ -50,8 +50,8 @@ func (h *hexStorage) RetrieveHexData() {
 
 	for _, line := range csvLines {
 		x, _ := strconv.ParseInt(line[0], 10, 64)
-		y, _ := strconv.ParseInt(line[0], 10, 64)
-		z, _ := strconv.ParseInt(line[0], 10, 64)
+		y, _ := strconv.ParseInt(line[1], 10, 64)
+		z, _ := strconv.ParseInt(line[2], 10, 64)
 		hexType := line[3]
 
 		hex := &Hex{
@@ -61,11 +61,11 @@ func (h *hexStorage) RetrieveHexData() {
 			Type: hexType,
 		}
 
-		hqr := hexQR{
-			q: x,
-			r: y,
+		hqr := HexQR{
+			Q: x,
+			R: y,
 		}
-		h.hexstore[hqr] = hex
+		h.Hexstore[hqr] = hex
 	}
 
 }
