@@ -31,7 +31,7 @@ func NewHexagonServiceClient(cc grpc.ClientConnInterface) HexagonServiceClient {
 
 func (c *hexagonServiceClient) GetHexagonRing(ctx context.Context, in *HexagonRingRequest, opts ...grpc.CallOption) (*HexCubeResponse, error) {
 	out := new(HexCubeResponse)
-	err := c.cc.Invoke(ctx, "/hexagon.HexagonService/GetHexagonRing", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/GetHexagonRing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func _HexagonService_GetHexagonRing_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/hexagon.HexagonService/GetHexagonRing",
+		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/GetHexagonRing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).GetHexagonRing(ctx, req.(*HexagonRingRequest))
@@ -88,7 +88,7 @@ func _HexagonService_GetHexagonRing_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HexagonService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "hexagon.HexagonService",
+	ServiceName: "endpoints.hexworld.hexcloud.HexagonService",
 	HandlerType: (*HexagonServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

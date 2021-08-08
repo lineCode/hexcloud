@@ -39,3 +39,4 @@ message HexCubeResponse {
 
 service HexagonService {
     rpc GetHexagonRing(HexagonRingRequest) returns (HexCubeResponse);
+}
