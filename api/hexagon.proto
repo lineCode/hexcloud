@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "/hexcloud";
 
-package hexagon;
+package endpoints.hexworld.hexcloud;
 
 message Hex {
     int64 X = 1; //
@@ -39,4 +39,3 @@ message HexCubeResponse {
 
 service HexagonService {
     rpc GetHexagonRing(HexagonRingRequest) returns (HexCubeResponse);
-}
