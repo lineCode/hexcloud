@@ -2,6 +2,7 @@ syntax = "proto3";
 
 option go_package = "/hexcloud";
 
+import "google/protobuf/empty.proto";
 package endpoints.hexworld.hexcloud;
 
 message Hex {
@@ -37,6 +38,16 @@ message HexCubeResponse {
     repeated Hex hc = 1;
 }
 
+message HexAxialList {
+    repeated HexAxial ha = 1;
+}
+
+message Status {
+    string msg = 1;
+}
+
 service HexagonService {
     rpc GetHexagonRing(HexagonRingRequest) returns (HexCubeResponse);
+    rpc StoreHexagons(HexAxialList) returns(google.protobuf.Empty);
+    rpc GetStatus(google.protobuf.Empty) returns(Status);
 }
