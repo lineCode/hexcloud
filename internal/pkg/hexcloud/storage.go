@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type HexQR struct {
@@ -19,7 +20,7 @@ type HexQR struct {
 
 type HexStorage struct {
 	Hexstore map[HexQR]*Hex
-	Local bool
+	Local    bool
 }
 
 func NewHexStorage() *HexStorage {
@@ -35,7 +36,7 @@ func (h *HexStorage) RetrieveHexData() {
 	fileName := "hexdata.txt"
 	var rc io.Reader
 
-	if(!h.Local) {
+	if !h.Local {
 		client, err := storage.NewClient(ctx)
 		if err != nil {
 			log.Fatalf("Failed to create GCP storage client: %v", err)
@@ -59,12 +60,20 @@ func (h *HexStorage) RetrieveHexData() {
 		rc = bufio.NewReader(f)
 	}
 
+	buf := new(strings.Builder)
+	_, err := io.Copy(buf, rc)
+	if err != nil {
+		log.Printf("#{err]")
+	}
+	log.Println(buf.String())
+
 	csvLines, err := csv.NewReader(rc).ReadAll()
 	if err != nil {
 		log.Printf("Error reading hexdata file: %v", err)
+		return
 	}
 
-	var hexDirection string;
+	var hexDirection string
 
 	for _, line := range csvLines {
 		x, _ := strconv.ParseInt(line[0], 10, 64)
@@ -78,10 +87,10 @@ func (h *HexStorage) RetrieveHexData() {
 		}
 
 		hex := &Hex{
-			X:    x,
-			Y:    y,
-			Z:    z,
-			Type: hexType,
+			X:         x,
+			Y:         y,
+			Z:         z,
+			Type:      hexType,
 			Direction: hexDirection,
 		}
 
@@ -94,7 +103,7 @@ func (h *HexStorage) RetrieveHexData() {
 
 }
 
-func(h *HexStorage) StoreHexagons() {
+func (h *HexStorage) StoreHexagons() {
 	ctx := context.Background()
 	//projectID := "robot-motel"
 	bucketName := "hexworld"
@@ -107,7 +116,7 @@ func(h *HexStorage) StoreHexagons() {
 	defer client.Close()
 
 	bucket := client.Bucket(bucketName)
-	rc := bucket.Object(fileName).NewWriter(ctx);
+	rc := bucket.Object(fileName).NewWriter(ctx)
 	defer rc.Close()
 
 	for _, hex := range h.Hexstore {
