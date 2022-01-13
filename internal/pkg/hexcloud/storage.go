@@ -10,7 +10,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 )
 
 type HexQR struct {
@@ -37,21 +36,22 @@ func (h *HexStorage) RetrieveHexData() {
 	var rc io.Reader
 
 	if !h.Local {
+		log.Printf("Reading data from GCP storage file")
 		client, err := storage.NewClient(ctx)
 		if err != nil {
 			log.Fatalf("Failed to create GCP storage client: %v", err)
+			return
 		}
 		defer client.Close()
 
 		bucket := client.Bucket(bucketName)
-		rc, err := bucket.Object(fileName).NewReader(ctx)
+		rc, err = bucket.Object(fileName).NewReader(ctx)
 		if err != nil {
 			log.Printf("readFile: unable to open file from bucket %Q, file %Q: %v", bucketName, fileName, err)
 			return
 		}
-		defer rc.Close()
 	} else {
-		log.Printf("Reading data from RunsLocal file")
+		log.Printf("Reading data from local file")
 		f, err := os.Open(fileName)
 		if err != nil {
 			log.Printf("Error opening RunsLocal file %s", fileName)
@@ -59,13 +59,6 @@ func (h *HexStorage) RetrieveHexData() {
 		}
 		rc = bufio.NewReader(f)
 	}
-
-	buf := new(strings.Builder)
-	_, err := io.Copy(buf, rc)
-	if err != nil {
-		log.Printf("#{err]")
-	}
-	log.Println(buf.String())
 
 	csvLines, err := csv.NewReader(rc).ReadAll()
 	if err != nil {
