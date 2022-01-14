@@ -3,17 +3,15 @@ package hexcloud
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"hexcloud/internal/pkg/hexgrid"
 )
 
 type Server struct {
 	Hs        *HexStorage
-	RunsLocal bool;
+	RunsLocal bool
 }
 
 func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
-
 
 func (s *Server) GetHexagonRing(ctx context.Context, request *HexagonRingRequest) (*HexCubeResponse, error) {
 	var hc []*Hex
@@ -61,14 +59,14 @@ func (s *Server) GetHexagonRing(ctx context.Context, request *HexagonRingRequest
 	return &HexCubeResponse{Hc: hc}, nil
 }
 
-func (s *Server) StoreHexagons(ctx context.Context, hexList *HexAxialList)  (*emptypb.Empty, error) {
+func (s *Server) StoreHexagons(ctx context.Context, hexList *HexAxialList) (*Empty, error) {
 
 	for _, ha := range hexList.GetHa() {
 		hex := &Hex{
-			X:    ha.GetU(),
-			Y:    ha.GetV(),
-			Z:    ha.GetU() - ha.GetV(),
-			Type: ha.GetType(),
+			X:         ha.GetU(),
+			Y:         ha.GetV(),
+			Z:         ha.GetU() - ha.GetV(),
+			Type:      ha.GetType(),
 			Direction: ha.GetDirection(),
 		}
 
@@ -79,13 +77,11 @@ func (s *Server) StoreHexagons(ctx context.Context, hexList *HexAxialList)  (*em
 		s.Hs.Hexstore[hqr] = hex
 	}
 
-
-	return &emptypb.Empty{}, nil
+	return &Empty{}, nil
 }
 
-func (s *Server) GetStatus(context.Context, *emptypb.Empty) (status *Status, err error) {
+func (s *Server) GetStatus(context.Context, *Empty) (status *Status, err error) {
 	length := len(s.Hs.Hexstore)
 	status = &Status{Msg: fmt.Sprintf("Server running, storing %d records", length)}
 	return
 }
-
