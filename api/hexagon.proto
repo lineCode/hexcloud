@@ -2,8 +2,9 @@ syntax = "proto3";
 
 option go_package = "/hexcloud";
 
-import "google/protobuf/empty.proto";
 package endpoints.hexworld.hexcloud;
+
+message Empty {}
 
 message Hex {
     int64 X = 1; //
@@ -48,6 +49,6 @@ message Status {
 
 service HexagonService {
     rpc GetHexagonRing(HexagonRingRequest) returns (HexCubeResponse);
-    rpc StoreHexagons(HexAxialList) returns(google.protobuf.Empty);
-    rpc GetStatus(google.protobuf.Empty) returns(Status);
+    rpc StoreHexagons(HexAxialList) returns(Empty);
+    rpc GetStatus(Empty) returns(Status);
 }

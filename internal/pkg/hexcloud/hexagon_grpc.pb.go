@@ -7,7 +7,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,8 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HexagonServiceClient interface {
 	GetHexagonRing(ctx context.Context, in *HexagonRingRequest, opts ...grpc.CallOption) (*HexCubeResponse, error)
-	StoreHexagons(ctx context.Context, in *HexAxialList, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Status, error)
+	StoreHexagons(ctx context.Context, in *HexAxialList, opts ...grpc.CallOption) (*Empty, error)
+	GetStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error)
 }
 
 type hexagonServiceClient struct {
@@ -41,8 +40,8 @@ func (c *hexagonServiceClient) GetHexagonRing(ctx context.Context, in *HexagonRi
 	return out, nil
 }
 
-func (c *hexagonServiceClient) StoreHexagons(ctx context.Context, in *HexAxialList, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *hexagonServiceClient) StoreHexagons(ctx context.Context, in *HexAxialList, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/StoreHexagons", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +49,7 @@ func (c *hexagonServiceClient) StoreHexagons(ctx context.Context, in *HexAxialLi
 	return out, nil
 }
 
-func (c *hexagonServiceClient) GetStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Status, error) {
+func (c *hexagonServiceClient) GetStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
 	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/GetStatus", in, out, opts...)
 	if err != nil {
@@ -64,8 +63,8 @@ func (c *hexagonServiceClient) GetStatus(ctx context.Context, in *emptypb.Empty,
 // for forward compatibility
 type HexagonServiceServer interface {
 	GetHexagonRing(context.Context, *HexagonRingRequest) (*HexCubeResponse, error)
-	StoreHexagons(context.Context, *HexAxialList) (*emptypb.Empty, error)
-	GetStatus(context.Context, *emptypb.Empty) (*Status, error)
+	StoreHexagons(context.Context, *HexAxialList) (*Empty, error)
+	GetStatus(context.Context, *Empty) (*Status, error)
 	mustEmbedUnimplementedHexagonServiceServer()
 }
 
@@ -76,10 +75,10 @@ type UnimplementedHexagonServiceServer struct {
 func (UnimplementedHexagonServiceServer) GetHexagonRing(context.Context, *HexagonRingRequest) (*HexCubeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHexagonRing not implemented")
 }
-func (UnimplementedHexagonServiceServer) StoreHexagons(context.Context, *HexAxialList) (*emptypb.Empty, error) {
+func (UnimplementedHexagonServiceServer) StoreHexagons(context.Context, *HexAxialList) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StoreHexagons not implemented")
 }
-func (UnimplementedHexagonServiceServer) GetStatus(context.Context, *emptypb.Empty) (*Status, error) {
+func (UnimplementedHexagonServiceServer) GetStatus(context.Context, *Empty) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStatus not implemented")
 }
 func (UnimplementedHexagonServiceServer) mustEmbedUnimplementedHexagonServiceServer() {}
@@ -132,7 +131,7 @@ func _HexagonService_StoreHexagons_Handler(srv interface{}, ctx context.Context,
 }
 
 func _HexagonService_GetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -144,7 +143,7 @@ func _HexagonService_GetStatus_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/GetStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).GetStatus(ctx, req.(*emptypb.Empty))
+		return srv.(HexagonServiceServer).GetStatus(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
