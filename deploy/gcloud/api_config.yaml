@@ -1,16 +1,24 @@
 type: google.api.Service
 config_version: 3
 name: "*.apigateway.robot_motel.cloud.goog"
-title: API Gateway Cloud Run gRPC gcloud
+title: API Gateway Cloud Run gRPC hexcloud
 apis:
   - name: endpoints.hexworld.gcloud.HexagonService
 usage:
   rules:
+    - selector: endpoints.hexworld.gcloud.HexagonService.AddHexagons
+      allow_unregistered_calls: true
     - selector: endpoints.hexworld.gcloud.HexagonService.GetHexagonRing
       allow_unregistered_calls: true
-    - selector: endpoints.hexworld.gcloud.HexagonService.StoreHexagons
+    - selector: endpoints.hexworld.gcloud.HexagonService.UpdateHexagon
       allow_unregistered_calls: true
-    - selector: endpoints.hexworld.gcloud.HexagonService.GetStatus
+    - selector: endpoints.hexworld.gcloud.HexagonService.DeleteHexagon
+      allow_unregistered_calls: true
+    - selector: endpoints.hexworld.gcloud.HexagonService.GetStatusServer
+      allow_unregistered_calls: true
+    - selector: endpoints.hexworld.gcloud.HexagonService.GetStatusStorage
+      allow_unregistered_calls: true
+    - selector: endpoints.hexworld.gcloud.HexagonService.GetStatusClients
       allow_unregistered_calls: true
 backend:
   rules:

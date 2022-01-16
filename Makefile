@@ -1,5 +1,5 @@
 build:
-	go build -o bin/hexcloud cmd/hexcloud.go
+	go build cmd/hexcloud.go
 
 run:
 	go run cmd/hexcloud.go

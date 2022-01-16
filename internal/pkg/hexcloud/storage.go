@@ -12,19 +12,19 @@ import (
 	"strconv"
 )
 
-type HexQR struct {
+type HexAxial struct {
 	Q int64
 	R int64
 }
 
 type HexStorage struct {
-	Hexstore map[HexQR]*Hex
+	Hexstore map[HexAxial]*Hex
 	Local    bool
 }
 
 func NewHexStorage() *HexStorage {
 	hs := &HexStorage{}
-	hs.Hexstore = make(map[HexQR]*Hex)
+	hs.Hexstore = make(map[HexAxial]*Hex)
 	return hs
 }
 
@@ -87,7 +87,7 @@ func (h *HexStorage) RetrieveHexData() {
 			Direction: hexDirection,
 		}
 
-		hqr := HexQR{
+		hqr := HexAxial{
 			Q: x,
 			R: y,
 		}
@@ -98,7 +98,6 @@ func (h *HexStorage) RetrieveHexData() {
 
 func (h *HexStorage) StoreHexagons() {
 	ctx := context.Background()
-	//projectID := "robot-motel"
 	bucketName := "hexworld"
 	fileName := "hexdata.txt"
 

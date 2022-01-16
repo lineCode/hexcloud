@@ -14,33 +14,22 @@ message Hex {
     string Direction = 5;
 }
 
-message HexAxial {
-    int64 U = 1;
-    int64 V = 2;
-    string Type = 3;
-    string Direction = 4;
-}
-
-message ConversionRequest {
-    repeated Hex hc = 1;
-}
-
-message HexagonRingRequest {
-    Hex ha = 1;
-    int64 radius = 2;
-    bool fill = 3;
-}
-
-message HexAxialResponse {
-    repeated HexAxial ha = 1;
+message HexCubeList {
+    repeated Hex hex = 1;
 }
 
 message HexCubeResponse {
     repeated Hex hc = 1;
 }
 
-message HexAxialList {
-    repeated HexAxial ha = 1;
+message HexagonRingRequest {
+    Hex hex = 1;
+    int64 radius = 2;
+    bool fill = 3;
+}
+
+message HexAmountResponse {
+    int64 deleted = 1;
 }
 
 message Status {
@@ -48,7 +37,11 @@ message Status {
 }
 
 service HexagonService {
+    rpc AddHexagons(HexCubeList) returns(Empty);
     rpc GetHexagonRing(HexagonRingRequest) returns (HexCubeResponse);
-    rpc StoreHexagons(HexAxialList) returns(Empty);
-    rpc GetStatus(Empty) returns(Status);
+    rpc UpdateHexagon(HexCubeList) returns(HexAmountResponse);
+    rpc DeleteHexagon(HexCubeList) returns(HexAmountResponse);
+    rpc GetStatusServer(Empty) returns(Status);
+    rpc GetStatusStorage(Empty) returns(Status);
+    rpc GetStatusClients(Empty) returns(Status);
 }
