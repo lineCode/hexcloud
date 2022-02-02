@@ -3,7 +3,6 @@ package hexcloud
 import (
 	"context"
 	"fmt"
-	"hexcloud/internal/pkg/hexgrid"
 )
 
 type Server struct {
@@ -13,81 +12,34 @@ type Server struct {
 
 func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
 
-func (s *Server) AddHexagons(ctx context.Context, hexList *HexCubeList) (*Empty, error) {
+func (s *Server) RepoAddHexagons(ctx context.Context, hexList *HexList) (result *Result, err error) {
 
-	for _, hex := range hexList.GetHex() {
-		hex := &Hex{
-			X:         hex.GetX(),
-			Y:         hex.GetY(),
-			Z:         hex.GetZ(),
-			Type:      hex.GetType(),
-			Direction: hex.GetDirection(),
-		}
-
-		hexAxial := HexAxial{
-			Q: hex.GetX(),
-			R: hex.GetY(),
-		}
-		s.Hs.Hexstore[hexAxial] = hex
-	}
-
-	return &Empty{}, nil
+	return result, err
 }
 
-func (s *Server) GetHexagonRing(ctx context.Context, request *HexagonRingRequest) (*HexCubeResponse, error) {
-	var hc []*Hex
-	maxStep := 1
-	if request.Fill {
-		maxStep = int(request.Radius)
-	}
+func (s *Server) RepoDelHexagons(ctx context.Context, hexList *HexList) (result *Result, err error) {
 
-	for step := 0; step < maxStep; step++ {
-		result := hexgrid.Ring(hexgrid.Hexagon{
-			X: request.Hex.X,
-			Y: request.Hex.Y,
-			Z: request.Hex.Z,
-		},
-			request.Radius-int64(step))
-
-		for _, h := range result {
-
-			hexType := "0000-0000-0000-0000"
-			hexDirection := "N"
-			hex, ok := s.Hs.Hexstore[HexAxial{h.X, h.Y}]
-			if ok {
-				hexType = hex.Type
-				hexDirection = hex.Direction
-			}
-
-			hc = append(hc, &Hex{
-				X:         h.X,
-				Y:         h.Y,
-				Z:         h.Z,
-				Type:      hexType,
-				Direction: hexDirection,
-			})
-		}
-	}
-
-	hc = append(hc, &Hex{
-		X:         0,
-		Y:         0,
-		Z:         0,
-		Type:      "0000-0000-0000-0000",
-		Direction: "N",
-	})
-
-	return &HexCubeResponse{Hc: hc}, nil
+	return result, err
 }
 
-func (s *Server) UpdateHexagon(ctx context.Context, request *HexCubeList) (*HexAmountResponse, error) {
+func (s *Server) HexagonPlace(context.Context, *Hex) (result *Result, err error) {
 
-	return &HexAmountResponse{Deleted: 0}, nil
+	return result, err
 }
 
-func (s *Server) DeleteHexagon(ctx context.Context, request *HexCubeList) (*HexAmountResponse, error) {
+func (s *Server) HexagonGet(context.Context, *HexagonGetRequest) (hexList *HexList, err error) {
 
-	return &HexAmountResponse{Deleted: 0}, nil
+	return hexList, err
+}
+
+func (s *Server) HexagonRemove(context.Context, *HexList) (result *Result, err error) {
+
+	return result, err
+}
+
+func (s *Server) HexagonInfo(context.Context, *Hex) (hex *Hex, err error) {
+
+	return hex, err
 }
 
 func (s *Server) GetStatusServer(context.Context, *Empty) (status *Status, err error) {
@@ -101,7 +53,10 @@ func (s *Server) GetStatusClients(ctx context.Context, empty *Empty) (status *St
 }
 
 func (s *Server) GetStatusStorage(ctx context.Context, empty *Empty) (status *Status, err error) {
-	length := len(s.Hs.Hexstore)
-	status = &Status{Msg: fmt.Sprintf("Server running, storing %d records", length)}
+	sizeMap := len(s.Hs.HexMap)
+	sizeRepo := len(s.Hs.HexRepo)
+	status = &Status{Msg: fmt.Sprintf("Server running\n"+
+		"Map contains %d hexagons\n"+
+		"Repository contains %d references\n", sizeMap, sizeRepo)}
 	return
 }

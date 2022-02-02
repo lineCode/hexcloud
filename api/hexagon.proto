@@ -7,40 +7,45 @@ package endpoints.hexworld.hexcloud;
 message Empty {}
 
 message Hex {
-    int64 X = 1; //
+    int64 X = 1;
     int64 Y = 2;
     int64 Z = 3;
-    string Type = 4;
-    string Direction = 5;
+    string Direction = 4;
+    string Reference = 5;
 }
 
-message HexCubeList {
+message HexReference {
+    string Ref = 1;
+}
+
+message HexList {
     repeated Hex hex = 1;
 }
 
-message HexCubeResponse {
-    repeated Hex hc = 1;
-}
-
-message HexagonRingRequest {
+message HexagonGetRequest {
     Hex hex = 1;
     int64 radius = 2;
     bool fill = 3;
-}
-
-message HexAmountResponse {
-    int64 deleted = 1;
 }
 
 message Status {
     string msg = 1;
 }
 
+message Result {
+    bool success = 1;
+}
+
 service HexagonService {
-    rpc AddHexagons(HexCubeList) returns(Empty);
-    rpc GetHexagonRing(HexagonRingRequest) returns (HexCubeResponse);
-    rpc UpdateHexagon(HexCubeList) returns(HexAmountResponse);
-    rpc DeleteHexagon(HexCubeList) returns(HexAmountResponse);
+    rpc RepoAddHexagons(HexList) returns(Result);
+    rpc RepoDelHexagons(HexList) returns(Result);
+
+    rpc HexagonPlace(Hex) returns (Result);
+    rpc HexagonGet(HexagonGetRequest) returns (HexList);
+    rpc HexagonRemove(HexList) returns(Result);
+
+    rpc HexagonInfo(Hex) returns(Hex);
+
     rpc GetStatusServer(Empty) returns(Status);
     rpc GetStatusStorage(Empty) returns(Status);
     rpc GetStatusClients(Empty) returns(Status);
