@@ -3,6 +3,7 @@ package hexcloud
 import (
 	"context"
 	"fmt"
+	"log"
 )
 
 type Server struct {
@@ -12,12 +13,19 @@ type Server struct {
 
 func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
 
-func (s *Server) RepoAddHexagons(ctx context.Context, hexList *HexList) (result *Result, err error) {
+func (s *Server) RepoAddHexagons(ctx context.Context, refList *HexRefList) (result *Result, err error) {
+	for _, reference := range refList.Ref {
+		log.Printf("%s\n", reference.Ref)
+	}
+
+	result = &Result{
+		Success: true,
+	}
 
 	return result, err
 }
 
-func (s *Server) RepoDelHexagons(ctx context.Context, hexList *HexList) (result *Result, err error) {
+func (s *Server) RepoDelHexagons(ctx context.Context, hexList *HexRefList) (result *Result, err error) {
 
 	return result, err
 }

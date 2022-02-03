@@ -18,6 +18,10 @@ message HexReference {
     string Ref = 1;
 }
 
+message HexRefList {
+    repeated HexReference ref = 1;
+}
+
 message HexList {
     repeated Hex hex = 1;
 }
@@ -37,8 +41,8 @@ message Result {
 }
 
 service HexagonService {
-    rpc RepoAddHexagons(HexList) returns(Result);
-    rpc RepoDelHexagons(HexList) returns(Result);
+    rpc RepoAddHexagons(HexRefList) returns(Result);
+    rpc RepoDelHexagons(HexRefList) returns(Result);
 
     rpc HexagonPlace(Hex) returns (Result);
     rpc HexagonGet(HexagonGetRequest) returns (HexList);

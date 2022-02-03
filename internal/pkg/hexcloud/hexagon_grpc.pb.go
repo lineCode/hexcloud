@@ -18,8 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HexagonServiceClient interface {
-	RepoAddHexagons(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error)
-	RepoDelHexagons(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error)
+	RepoAddHexagons(ctx context.Context, in *HexRefList, opts ...grpc.CallOption) (*Result, error)
+	RepoDelHexagons(ctx context.Context, in *HexRefList, opts ...grpc.CallOption) (*Result, error)
 	HexagonPlace(ctx context.Context, in *Hex, opts ...grpc.CallOption) (*Result, error)
 	HexagonGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexList, error)
 	HexagonRemove(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error)
@@ -37,7 +37,7 @@ func NewHexagonServiceClient(cc grpc.ClientConnInterface) HexagonServiceClient {
 	return &hexagonServiceClient{cc}
 }
 
-func (c *hexagonServiceClient) RepoAddHexagons(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error) {
+func (c *hexagonServiceClient) RepoAddHexagons(ctx context.Context, in *HexRefList, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
 	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/RepoAddHexagons", in, out, opts...)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *hexagonServiceClient) RepoAddHexagons(ctx context.Context, in *HexList,
 	return out, nil
 }
 
-func (c *hexagonServiceClient) RepoDelHexagons(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error) {
+func (c *hexagonServiceClient) RepoDelHexagons(ctx context.Context, in *HexRefList, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
 	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/RepoDelHexagons", in, out, opts...)
 	if err != nil {
@@ -122,8 +122,8 @@ func (c *hexagonServiceClient) GetStatusClients(ctx context.Context, in *Empty, 
 // All implementations must embed UnimplementedHexagonServiceServer
 // for forward compatibility
 type HexagonServiceServer interface {
-	RepoAddHexagons(context.Context, *HexList) (*Result, error)
-	RepoDelHexagons(context.Context, *HexList) (*Result, error)
+	RepoAddHexagons(context.Context, *HexRefList) (*Result, error)
+	RepoDelHexagons(context.Context, *HexRefList) (*Result, error)
 	HexagonPlace(context.Context, *Hex) (*Result, error)
 	HexagonGet(context.Context, *HexagonGetRequest) (*HexList, error)
 	HexagonRemove(context.Context, *HexList) (*Result, error)
@@ -138,10 +138,10 @@ type HexagonServiceServer interface {
 type UnimplementedHexagonServiceServer struct {
 }
 
-func (UnimplementedHexagonServiceServer) RepoAddHexagons(context.Context, *HexList) (*Result, error) {
+func (UnimplementedHexagonServiceServer) RepoAddHexagons(context.Context, *HexRefList) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepoAddHexagons not implemented")
 }
-func (UnimplementedHexagonServiceServer) RepoDelHexagons(context.Context, *HexList) (*Result, error) {
+func (UnimplementedHexagonServiceServer) RepoDelHexagons(context.Context, *HexRefList) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepoDelHexagons not implemented")
 }
 func (UnimplementedHexagonServiceServer) HexagonPlace(context.Context, *Hex) (*Result, error) {
@@ -179,7 +179,7 @@ func RegisterHexagonServiceServer(s grpc.ServiceRegistrar, srv HexagonServiceSer
 }
 
 func _HexagonService_RepoAddHexagons_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HexList)
+	in := new(HexRefList)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -191,13 +191,13 @@ func _HexagonService_RepoAddHexagons_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/RepoAddHexagons",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).RepoAddHexagons(ctx, req.(*HexList))
+		return srv.(HexagonServiceServer).RepoAddHexagons(ctx, req.(*HexRefList))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _HexagonService_RepoDelHexagons_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HexList)
+	in := new(HexRefList)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func _HexagonService_RepoDelHexagons_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/RepoDelHexagons",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).RepoDelHexagons(ctx, req.(*HexList))
+		return srv.(HexagonServiceServer).RepoDelHexagons(ctx, req.(*HexRefList))
 	}
 	return interceptor(ctx, in, info, handler)
 }
