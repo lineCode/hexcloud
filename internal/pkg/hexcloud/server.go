@@ -26,7 +26,15 @@ func (s *Server) RepoAddHexagons(ctx context.Context, refList *HexRefList) (resu
 	return result, err
 }
 
-func (s *Server) RepoDelHexagons(ctx context.Context, hexList *HexRefList) (result *Result, err error) {
+func (s *Server) RepoDelHexagons(ctx context.Context, refList *HexRefList) (result *Result, err error) {
+	for _, reference := range refList.Ref {
+		log.Printf("Deleting from storage: %s\n", reference.Ref)
+		s.Storage.DeleteHexagonReference(reference)
+	}
+
+	result = &Result{
+		Success: true,
+	}
 
 	return result, err
 }

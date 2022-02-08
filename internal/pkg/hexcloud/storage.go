@@ -156,3 +156,7 @@ func (h *HexStorage) StoreHexagons() {
 func (h *HexStorage) StoreHexagonReference(reference *HexReference) {
 	h.hexRepo[reference.Ref] = reference
 }
+
+func (h *HexStorage) DeleteHexagonReference(reference *HexReference) {
+	delete(h.hexRepo, reference.Ref)
+}
