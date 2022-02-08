@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	hexcloud.RegisterHexagonServiceServer(s, &hexcloud.Server{Hs: hs, RunsLocal: local})
+	hexcloud.RegisterHexagonServiceServer(s, &hexcloud.Server{Storage: hs, RunsLocal: local})
 	log.Printf("Server listining on: %v", listen.Addr())
 	if err := s.Serve(listen); err != nil {
 		log.Fatalf("failed to serve: %v", err)

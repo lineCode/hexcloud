@@ -7,7 +7,7 @@ import (
 )
 
 type Server struct {
-	Hs        *HexStorage
+	Storage   *HexStorage
 	RunsLocal bool
 }
 
@@ -15,7 +15,8 @@ func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
 
 func (s *Server) RepoAddHexagons(ctx context.Context, refList *HexRefList) (result *Result, err error) {
 	for _, reference := range refList.Ref {
-		log.Printf("%s\n", reference.Ref)
+		log.Printf("Storing: %s\n", reference.Ref)
+		s.Storage.StoreHexagonReference(reference)
 	}
 
 	result = &Result{
@@ -61,8 +62,8 @@ func (s *Server) GetStatusClients(ctx context.Context, empty *Empty) (status *St
 }
 
 func (s *Server) GetStatusStorage(ctx context.Context, empty *Empty) (status *Status, err error) {
-	sizeMap := len(s.Hs.HexMap)
-	sizeRepo := len(s.Hs.HexRepo)
+	sizeMap := len(s.Storage.hexMap)
+	sizeRepo := len(s.Storage.hexRepo)
 	status = &Status{Msg: fmt.Sprintf("Server running\n"+
 		"Map contains %d hexagons\n"+
 		"Repository contains %d references\n", sizeMap, sizeRepo)}

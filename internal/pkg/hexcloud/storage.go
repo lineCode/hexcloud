@@ -18,14 +18,15 @@ type HexAxial struct {
 }
 
 type HexStorage struct {
-	HexMap  map[HexAxial]*Hex
-	HexRepo []HexReference
+	hexMap  map[HexAxial]*Hex
+	hexRepo map[string]*HexReference
 	Local   bool
 }
 
 func NewHexStorage() *HexStorage {
 	hs := &HexStorage{}
-	hs.HexMap = make(map[HexAxial]*Hex)
+	hs.hexMap = make(map[HexAxial]*Hex)
+	hs.hexRepo = make(map[string]*HexReference)
 	return hs
 }
 
@@ -53,9 +54,7 @@ func (h *HexStorage) loadRepo(ctx context.Context, bucketName string, fileNameRe
 
 	scanner := bufio.NewScanner(rc)
 	for scanner.Scan() {
-		h.HexRepo = append(h.HexRepo, HexReference{
-			Ref: scanner.Text(),
-		})
+		h.hexRepo[scanner.Text()] = &HexReference{Ref: scanner.Text()}
 	}
 
 }
@@ -101,7 +100,7 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 			Q: x,
 			R: y,
 		}
-		h.HexMap[hqr] = hex
+		h.hexMap[hqr] = hex
 	}
 }
 
@@ -148,8 +147,12 @@ func (h *HexStorage) StoreHexagons() {
 	rc := bucket.Object(fileName).NewWriter(ctx)
 	defer rc.Close()
 
-	for _, hex := range h.HexMap {
+	for _, hex := range h.hexMap {
 		s := fmt.Sprintf("%d,%d,%d,%s,%s\n", hex.X, hex.Y, hex.Z, hex.Direction, hex.Reference)
 		rc.Write([]byte(s))
 	}
+}
+
+func (h *HexStorage) StoreHexagonReference(reference *HexReference) {
+	h.hexRepo[reference.Ref] = reference
 }
