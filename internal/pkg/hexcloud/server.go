@@ -2,6 +2,7 @@ package hexcloud
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 )
@@ -39,9 +40,18 @@ func (s *Server) RepoDelHexagons(ctx context.Context, refList *HexRefList) (resu
 	return result, err
 }
 
-func (s *Server) HexagonPlace(context.Context, *Hex) (result *Result, err error) {
+func (s *Server) HexagonPlace(ctx context.Context, hex *Hex) (result *Result, err error) {
+	key := HexAxial{Q: hex.X, R: hex.Y}
 
-	return result, err
+	if s.Storage.hexMap[key] != nil {
+		result = &Result{Success: false}
+		return result, errors.New("location already has a hexagon")
+	}
+
+	s.Storage.hexMap[key] = hex
+	result = &Result{Success: true}
+
+	return result, nil
 }
 
 func (s *Server) HexagonGet(context.Context, *HexagonGetRequest) (hexList *HexList, err error) {

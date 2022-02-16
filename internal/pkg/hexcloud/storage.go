@@ -75,7 +75,7 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 		return
 	}
 
-	var hexDirection string
+	var hexDirection Direction
 
 	for _, line := range csvLines {
 		x, _ := strconv.ParseInt(line[0], 10, 64)
@@ -83,9 +83,20 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 		z, _ := strconv.ParseInt(line[2], 10, 64)
 		hexReference := line[3]
 		if len(line) > 4 {
-			hexDirection = line[4]
+			switch line[4] {
+				case "N": hexDirection = Direction_N
+				case "NE": hexDirection = Direction_NE
+				case "E": hexDirection = Direction_E
+				case "SE": hexDirection = Direction_SE
+				case "S": hexDirection = Direction_S
+				case "SW": hexDirection = Direction_SW
+				case "W": hexDirection = Direction_W
+				case "NW": hexDirection = Direction_NW
+				default:
+					hexDirection = Direction_N
+			}
 		} else {
-			hexDirection = "N"
+			hexDirection = Direction_N
 		}
 
 		hex := &Hex{
