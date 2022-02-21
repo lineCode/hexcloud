@@ -59,9 +59,14 @@ func (s *Server) HexagonGet(context.Context, *HexagonGetRequest) (hexList *HexLi
 	return hexList, err
 }
 
-func (s *Server) HexagonRemove(context.Context, *HexList) (result *Result, err error) {
+func (s *Server) HexagonRemove(ctx context.Context, hexList *HexList) (result *Result, err error) {
+	for _, hex := range hexList.Hex {
+		key := HexAxial{Q: hex.X, R: hex.Y}
+		delete(s.Storage.hexMap, key)
+	}
 
-	return result, err
+	result = &Result{Success: true}
+	return result, nil
 }
 
 func (s *Server) HexagonInfo(context.Context, *Hex) (hex *Hex, err error) {
