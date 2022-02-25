@@ -55,9 +55,9 @@ service HexagonService {
     rpc RepoAddHexagons(HexRefList) returns(Result);
     rpc RepoDelHexagons(HexRefList) returns(Result);
 
-    rpc HexagonPlace(Hex) returns (Result);
-    rpc HexagonGet(HexagonGetRequest) returns (HexList);
-    rpc HexagonRemove(HexList) returns(Result);
+    rpc MapAdd(Hex) returns (Result);
+    rpc MapGet(HexagonGetRequest) returns (HexList);
+    rpc MapRemove(HexList) returns(Result);
 
     rpc HexagonInfo(Hex) returns(Hex);
 

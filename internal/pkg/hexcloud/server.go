@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hexcloud/internal/pkg/hexgrid"
 	"log"
 )
 
@@ -40,7 +41,7 @@ func (s *Server) RepoDelHexagons(ctx context.Context, refList *HexRefList) (resu
 	return result, err
 }
 
-func (s *Server) HexagonPlace(ctx context.Context, hex *Hex) (result *Result, err error) {
+func (s *Server) MapAdd(ctx context.Context, hex *Hex) (result *Result, err error) {
 	key := HexAxial{Q: hex.X, R: hex.Y}
 
 	if s.Storage.hexMap[key] != nil {
@@ -54,12 +55,38 @@ func (s *Server) HexagonPlace(ctx context.Context, hex *Hex) (result *Result, er
 	return result, nil
 }
 
-func (s *Server) HexagonGet(context.Context, *HexagonGetRequest) (hexList *HexList, err error) {
+func (s *Server) MapGet(ctx context.Context, request *HexagonGetRequest) (hexList *HexList, err error) {
+
+	result := hexgrid.Ring(hexgrid.Hexagon{
+		X: request.Hex.X,
+		Y: request.Hex.Y,
+		Z: request.Hex.Z,
+	}, request.Radius)
+
+	hexList = new(HexList)
+
+	center := s.Storage.hexMap[HexAxial{
+		Q: request.Hex.X,
+		R: request.Hex.Y,
+	}]
+	if center != nil {
+		hexList.Hex = append(hexList.Hex, center)
+	}
+
+	for _, hexagon := range result {
+		h := s.Storage.hexMap[HexAxial{
+			Q: hexagon.X,
+			R: hexagon.Y,
+		}]
+		if h != nil {
+			hexList.Hex = append(hexList.Hex, h)
+		}
+	}
 
 	return hexList, err
 }
 
-func (s *Server) HexagonRemove(ctx context.Context, hexList *HexList) (result *Result, err error) {
+func (s *Server) MapRemove(ctx context.Context, hexList *HexList) (result *Result, err error) {
 	for _, hex := range hexList.Hex {
 		key := HexAxial{Q: hex.X, R: hex.Y}
 		delete(s.Storage.hexMap, key)

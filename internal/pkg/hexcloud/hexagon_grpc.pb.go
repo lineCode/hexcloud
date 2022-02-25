@@ -20,9 +20,9 @@ const _ = grpc.SupportPackageIsVersion7
 type HexagonServiceClient interface {
 	RepoAddHexagons(ctx context.Context, in *HexRefList, opts ...grpc.CallOption) (*Result, error)
 	RepoDelHexagons(ctx context.Context, in *HexRefList, opts ...grpc.CallOption) (*Result, error)
-	HexagonPlace(ctx context.Context, in *Hex, opts ...grpc.CallOption) (*Result, error)
-	HexagonGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexList, error)
-	HexagonRemove(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error)
+	MapAdd(ctx context.Context, in *Hex, opts ...grpc.CallOption) (*Result, error)
+	MapGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexList, error)
+	MapRemove(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error)
 	HexagonInfo(ctx context.Context, in *Hex, opts ...grpc.CallOption) (*Hex, error)
 	GetStatusServer(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error)
 	GetStatusStorage(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error)
@@ -55,27 +55,27 @@ func (c *hexagonServiceClient) RepoDelHexagons(ctx context.Context, in *HexRefLi
 	return out, nil
 }
 
-func (c *hexagonServiceClient) HexagonPlace(ctx context.Context, in *Hex, opts ...grpc.CallOption) (*Result, error) {
+func (c *hexagonServiceClient) MapAdd(ctx context.Context, in *Hex, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/HexagonPlace", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/MapAdd", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hexagonServiceClient) HexagonGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexList, error) {
+func (c *hexagonServiceClient) MapGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexList, error) {
 	out := new(HexList)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/HexagonGet", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/MapGet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hexagonServiceClient) HexagonRemove(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error) {
+func (c *hexagonServiceClient) MapRemove(ctx context.Context, in *HexList, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/HexagonRemove", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/MapRemove", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,9 +124,9 @@ func (c *hexagonServiceClient) GetStatusClients(ctx context.Context, in *Empty, 
 type HexagonServiceServer interface {
 	RepoAddHexagons(context.Context, *HexRefList) (*Result, error)
 	RepoDelHexagons(context.Context, *HexRefList) (*Result, error)
-	HexagonPlace(context.Context, *Hex) (*Result, error)
-	HexagonGet(context.Context, *HexagonGetRequest) (*HexList, error)
-	HexagonRemove(context.Context, *HexList) (*Result, error)
+	MapAdd(context.Context, *Hex) (*Result, error)
+	MapGet(context.Context, *HexagonGetRequest) (*HexList, error)
+	MapRemove(context.Context, *HexList) (*Result, error)
 	HexagonInfo(context.Context, *Hex) (*Hex, error)
 	GetStatusServer(context.Context, *Empty) (*Status, error)
 	GetStatusStorage(context.Context, *Empty) (*Status, error)
@@ -144,14 +144,14 @@ func (UnimplementedHexagonServiceServer) RepoAddHexagons(context.Context, *HexRe
 func (UnimplementedHexagonServiceServer) RepoDelHexagons(context.Context, *HexRefList) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepoDelHexagons not implemented")
 }
-func (UnimplementedHexagonServiceServer) HexagonPlace(context.Context, *Hex) (*Result, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HexagonPlace not implemented")
+func (UnimplementedHexagonServiceServer) MapAdd(context.Context, *Hex) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MapAdd not implemented")
 }
-func (UnimplementedHexagonServiceServer) HexagonGet(context.Context, *HexagonGetRequest) (*HexList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HexagonGet not implemented")
+func (UnimplementedHexagonServiceServer) MapGet(context.Context, *HexagonGetRequest) (*HexList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MapGet not implemented")
 }
-func (UnimplementedHexagonServiceServer) HexagonRemove(context.Context, *HexList) (*Result, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HexagonRemove not implemented")
+func (UnimplementedHexagonServiceServer) MapRemove(context.Context, *HexList) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MapRemove not implemented")
 }
 func (UnimplementedHexagonServiceServer) HexagonInfo(context.Context, *Hex) (*Hex, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HexagonInfo not implemented")
@@ -214,56 +214,56 @@ func _HexagonService_RepoDelHexagons_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HexagonService_HexagonPlace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HexagonService_MapAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Hex)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HexagonServiceServer).HexagonPlace(ctx, in)
+		return srv.(HexagonServiceServer).MapAdd(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/HexagonPlace",
+		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/MapAdd",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).HexagonPlace(ctx, req.(*Hex))
+		return srv.(HexagonServiceServer).MapAdd(ctx, req.(*Hex))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HexagonService_HexagonGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HexagonService_MapGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HexagonGetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HexagonServiceServer).HexagonGet(ctx, in)
+		return srv.(HexagonServiceServer).MapGet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/HexagonGet",
+		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/MapGet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).HexagonGet(ctx, req.(*HexagonGetRequest))
+		return srv.(HexagonServiceServer).MapGet(ctx, req.(*HexagonGetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HexagonService_HexagonRemove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HexagonService_MapRemove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HexList)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HexagonServiceServer).HexagonRemove(ctx, in)
+		return srv.(HexagonServiceServer).MapRemove(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/HexagonRemove",
+		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/MapRemove",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).HexagonRemove(ctx, req.(*HexList))
+		return srv.(HexagonServiceServer).MapRemove(ctx, req.(*HexList))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -356,16 +356,16 @@ var HexagonService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HexagonService_RepoDelHexagons_Handler,
 		},
 		{
-			MethodName: "HexagonPlace",
-			Handler:    _HexagonService_HexagonPlace_Handler,
+			MethodName: "MapAdd",
+			Handler:    _HexagonService_MapAdd_Handler,
 		},
 		{
-			MethodName: "HexagonGet",
-			Handler:    _HexagonService_HexagonGet_Handler,
+			MethodName: "MapGet",
+			Handler:    _HexagonService_MapGet_Handler,
 		},
 		{
-			MethodName: "HexagonRemove",
-			Handler:    _HexagonService_HexagonRemove_Handler,
+			MethodName: "MapRemove",
+			Handler:    _HexagonService_MapRemove_Handler,
 		},
 		{
 			MethodName: "HexagonInfo",
