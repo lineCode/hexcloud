@@ -12,4 +12,7 @@ install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 protoc --go_out=./internal/pkg  --go-grpc_out=./internal/pkg ./api/hexagon.proto
 ```
 
-## Github Actions
+## Program Flow
+Program flow of two of the [API calls](./api/hexagon.proto) (MapAdd and MapGet)
+![UML Sequence Diagram](./images/hexcloud.svg)
+<img src="./images/hexcloud.svg">
