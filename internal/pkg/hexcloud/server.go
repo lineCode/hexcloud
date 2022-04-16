@@ -57,11 +57,21 @@ func (s *Server) MapAdd(ctx context.Context, hex *Hex) (result *Result, err erro
 
 func (s *Server) MapGet(ctx context.Context, request *HexagonGetRequest) (hexList *HexList, err error) {
 
-	result := hexgrid.Ring(hexgrid.Hexagon{
-		X: request.Hex.X,
-		Y: request.Hex.Y,
-		Z: request.Hex.Z,
-	}, request.Radius)
+	result := []hexgrid.Hexagon{}
+	var start int64 = 0
+	if !request.Fill {
+		start = request.Radius
+	}
+
+	for i := start; i <= request.Radius; i++ {
+		ring := hexgrid.Ring(hexgrid.Hexagon{
+			X: request.Hex.X,
+			Y: request.Hex.Y,
+			Z: request.Hex.Z,
+		}, i)
+
+		result = append(result, ring...)
+	}
 
 	hexList = new(HexList)
 
