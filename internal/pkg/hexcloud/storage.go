@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"io"
 	"log"
 	"os"
@@ -37,9 +38,46 @@ func (h *HexStorage) RetrieveHexData() {
 	fileNameMap := "hexmap.txt"
 	fileNameRepo := "hexrepo.txt"
 
-	h.loadMap(ctx, bucketName, fileNameMap)
 	h.loadRepo(ctx, bucketName, fileNameRepo)
+	h.loadMap(ctx, bucketName, fileNameMap)
+	go h.WatchMapChange(ctx, bucketName, fileNameMap)
 
+}
+
+func (h *HexStorage) WatchMapChange(ctx context.Context, bucketName string, fileNameMap string) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watcher.Close()
+
+	done := make(chan bool)
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				log.Println("event:", event)
+				if event.Op&fsnotify.Write == fsnotify.Write {
+					log.Println("modified file:", event.Name)
+					h.loadMap(ctx, bucketName, fileNameMap)
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Println("error:", err)
+			}
+		}
+	}()
+
+	err = watcher.Add(fileNameMap)
+	if err != nil {
+		log.Fatal(err)
+	}
+	<-done
 }
 
 func (h *HexStorage) loadRepo(ctx context.Context, bucketName string, fileNameRepo string) {
@@ -84,16 +122,24 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 		hexReference := line[3]
 		if len(line) > 4 {
 			switch line[4] {
-				case "N": hexDirection = Direction_N
-				case "NE": hexDirection = Direction_NE
-				case "E": hexDirection = Direction_E
-				case "SE": hexDirection = Direction_SE
-				case "S": hexDirection = Direction_S
-				case "SW": hexDirection = Direction_SW
-				case "W": hexDirection = Direction_W
-				case "NW": hexDirection = Direction_NW
-				default:
-					hexDirection = Direction_N
+			case "N":
+				hexDirection = Direction_N
+			case "NE":
+				hexDirection = Direction_NE
+			case "E":
+				hexDirection = Direction_E
+			case "SE":
+				hexDirection = Direction_SE
+			case "S":
+				hexDirection = Direction_S
+			case "SW":
+				hexDirection = Direction_SW
+			case "W":
+				hexDirection = Direction_W
+			case "NW":
+				hexDirection = Direction_NW
+			default:
+				hexDirection = Direction_N
 			}
 		} else {
 			hexDirection = Direction_N
@@ -113,6 +159,7 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 		}
 		h.hexMap[hqr] = hex
 	}
+	log.Printf("%d hexagons in map", len(h.hexMap))
 }
 
 func readFile(ctx context.Context, bucketName string, fileNameMap string, h *HexStorage) (rc io.Reader, err error) {
