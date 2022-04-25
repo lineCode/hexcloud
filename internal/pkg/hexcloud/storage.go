@@ -19,15 +19,15 @@ type HexAxial struct {
 }
 
 type HexStorage struct {
-	hexMap  map[HexAxial]*Hex
-	hexRepo map[string]*HexReference
+	hexMap  map[HexAxial]*HexLocation
+	hexRepo map[string]*HexInfo
 	Local   bool
 }
 
 func NewHexStorage() *HexStorage {
 	hs := &HexStorage{}
-	hs.hexMap = make(map[HexAxial]*Hex)
-	hs.hexRepo = make(map[string]*HexReference)
+	hs.hexMap = make(map[HexAxial]*HexLocation)
+	hs.hexRepo = make(map[string]*HexInfo)
 	return hs
 }
 
@@ -90,9 +90,20 @@ func (h *HexStorage) loadRepo(ctx context.Context, bucketName string, fileNameRe
 		return
 	}
 
-	scanner := bufio.NewScanner(rc)
-	for scanner.Scan() {
-		h.hexRepo[scanner.Text()] = &HexReference{Ref: scanner.Text()}
+	csvLines, err := csv.NewReader(rc).ReadAll()
+	if err != nil {
+		log.Printf("Error reading hexdata file: %v", err)
+		return
+	}
+
+	for _, line := range csvLines {
+		Exits, _ := strconv.ParseInt(line[1], 10, 64)
+		ID := line[0]
+		hexInfo := &HexInfo{
+			ID:    ID,
+			Exits: uint32(Exits),
+		}
+		h.hexRepo[ID] = hexInfo
 	}
 
 }
@@ -119,7 +130,7 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 		x, _ := strconv.ParseInt(line[0], 10, 64)
 		y, _ := strconv.ParseInt(line[1], 10, 64)
 		z, _ := strconv.ParseInt(line[2], 10, 64)
-		hexReference := line[3]
+		hexID := line[3]
 		if len(line) > 4 {
 			switch line[4] {
 			case "N":
@@ -145,12 +156,12 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 			hexDirection = Direction_N
 		}
 
-		hex := &Hex{
+		hex := &HexLocation{
 			X:         x,
 			Y:         y,
 			Z:         z,
 			Direction: hexDirection,
-			Reference: hexReference,
+			HexID:     hexID,
 		}
 
 		hqr := HexAxial{
@@ -206,15 +217,15 @@ func (h *HexStorage) StoreHexagons() {
 	defer rc.Close()
 
 	for _, hex := range h.hexMap {
-		s := fmt.Sprintf("%d,%d,%d,%s,%s\n", hex.X, hex.Y, hex.Z, hex.Direction, hex.Reference)
+		s := fmt.Sprintf("%d,%d,%d,%s,%s\n", hex.X, hex.Y, hex.Z, hex.Direction, hex.HexID)
 		rc.Write([]byte(s))
 	}
 }
 
-func (h *HexStorage) StoreHexagonReference(reference *HexReference) {
-	h.hexRepo[reference.Ref] = reference
+func (h *HexStorage) StoreHexagonInfo(hexInfo *HexInfo) {
+	h.hexRepo[hexInfo.ID] = hexInfo
 }
 
-func (h *HexStorage) DeleteHexagonReference(reference *HexReference) {
-	delete(h.hexRepo, reference.Ref)
+func (h *HexStorage) DeleteHexagonReference(ID string) {
+	delete(h.hexRepo, ID)
 }

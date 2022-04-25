@@ -15,10 +15,11 @@ type Server struct {
 
 func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
 
-func (s *Server) RepoAddHexagons(ctx context.Context, refList *HexRefList) (result *Result, err error) {
-	for _, reference := range refList.Ref {
-		log.Printf("Storing: %s\n", reference.Ref)
-		s.Storage.StoreHexagonReference(reference)
+func (s *Server) RepoAddHexagonInfo(ctx context.Context, hexInfoList *HexInfoList) (result *Result, err error) {
+
+	for _, hexInfo := range hexInfoList.HexInfo {
+		log.Printf("Storing: %s\n", hexInfo.ID)
+		s.Storage.StoreHexagonInfo(hexInfo)
 	}
 
 	result = &Result{
@@ -28,10 +29,10 @@ func (s *Server) RepoAddHexagons(ctx context.Context, refList *HexRefList) (resu
 	return result, err
 }
 
-func (s *Server) RepoDelHexagons(ctx context.Context, refList *HexRefList) (result *Result, err error) {
-	for _, reference := range refList.Ref {
-		log.Printf("Deleting from storage: %s\n", reference.Ref)
-		s.Storage.DeleteHexagonReference(reference)
+func (s *Server) RepoDelHexagonInfo(ctx context.Context, hexIDList *HexIDList) (result *Result, err error) {
+	for _, ID := range hexIDList.HexID {
+		log.Printf("Deleting from storage: %s\n", ID)
+		s.Storage.DeleteHexagonReference(ID)
 	}
 
 	result = &Result{
@@ -41,21 +42,44 @@ func (s *Server) RepoDelHexagons(ctx context.Context, refList *HexRefList) (resu
 	return result, err
 }
 
-func (s *Server) MapAdd(ctx context.Context, hex *Hex) (result *Result, err error) {
-	key := HexAxial{Q: hex.X, R: hex.Y}
+func (s *Server) RepoGetHexagonInfo(ctx context.Context, hexIDList *HexIDList) (hexInfoList *HexInfoList, err error) {
+
+	hexInfoList = new(HexInfoList)
+
+	for _, hexID := range hexIDList.HexID {
+		hexInfo := s.Storage.hexRepo[hexID]
+		hexInfoList.HexInfo = append(hexInfoList.HexInfo, hexInfo)
+	}
+
+	return hexInfoList, err
+}
+
+func (s *Server) RepoGetAllHexagonInfo(ctx context.Context, empty *Empty) (hexInfoList *HexInfoList, err error) {
+
+	hexInfoList = new(HexInfoList)
+
+	for _, hexInfo := range s.Storage.hexRepo {
+		hexInfoList.HexInfo = append(hexInfoList.HexInfo, hexInfo)
+	}
+
+	return hexInfoList, err
+}
+
+func (s *Server) MapAdd(ctx context.Context, hexLocation *HexLocation) (result *Result, err error) {
+	key := HexAxial{Q: hexLocation.X, R: hexLocation.Y}
 
 	if s.Storage.hexMap[key] != nil {
 		result = &Result{Success: false}
 		return result, errors.New("location already has a hexagon")
 	}
 
-	s.Storage.hexMap[key] = hex
+	s.Storage.hexMap[key] = hexLocation
 	result = &Result{Success: true}
 
 	return result, nil
 }
 
-func (s *Server) MapGet(ctx context.Context, request *HexagonGetRequest) (hexList *HexList, err error) {
+func (s *Server) MapGet(ctx context.Context, request *HexagonGetRequest) (hexLocationList *HexLocationList, err error) {
 
 	result := []hexgrid.Hexagon{}
 	var start int64 = 0
@@ -65,22 +89,22 @@ func (s *Server) MapGet(ctx context.Context, request *HexagonGetRequest) (hexLis
 
 	for i := start; i <= request.Radius; i++ {
 		ring := hexgrid.Ring(hexgrid.Hexagon{
-			X: request.Hex.X,
-			Y: request.Hex.Y,
-			Z: request.Hex.Z,
+			X: request.HexLoc.X,
+			Y: request.HexLoc.Y,
+			Z: request.HexLoc.Z,
 		}, i)
 
 		result = append(result, ring...)
 	}
 
-	hexList = new(HexList)
+	hexLocationList = new(HexLocationList)
 
 	center := s.Storage.hexMap[HexAxial{
-		Q: request.Hex.X,
-		R: request.Hex.Y,
+		Q: request.HexLoc.X,
+		R: request.HexLoc.Y,
 	}]
 	if center != nil {
-		hexList.Hex = append(hexList.Hex, center)
+		hexLocationList.HexLoc = append(hexLocationList.HexLoc, center)
 	}
 
 	for _, hexagon := range result {
@@ -89,26 +113,21 @@ func (s *Server) MapGet(ctx context.Context, request *HexagonGetRequest) (hexLis
 			R: hexagon.Y,
 		}]
 		if h != nil {
-			hexList.Hex = append(hexList.Hex, h)
+			hexLocationList.HexLoc = append(hexLocationList.HexLoc, h)
 		}
 	}
 
-	return hexList, err
+	return hexLocationList, err
 }
 
-func (s *Server) MapRemove(ctx context.Context, hexList *HexList) (result *Result, err error) {
-	for _, hex := range hexList.Hex {
+func (s *Server) MapRemove(ctx context.Context, hexLocationList *HexLocationList) (result *Result, err error) {
+	for _, hex := range hexLocationList.HexLoc {
 		key := HexAxial{Q: hex.X, R: hex.Y}
 		delete(s.Storage.hexMap, key)
 	}
 
 	result = &Result{Success: true}
 	return result, nil
-}
-
-func (s *Server) HexagonInfo(context.Context, *Hex) (hex *Hex, err error) {
-
-	return hex, err
 }
 
 func (s *Server) GetStatusServer(context.Context, *Empty) (status *Status, err error) {
