@@ -40,7 +40,7 @@ func NewHexagonServiceClient(cc grpc.ClientConnInterface) HexagonServiceClient {
 
 func (c *hexagonServiceClient) RepoAddHexagonInfo(ctx context.Context, in *HexInfoList, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/RepoAddHexagonInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoAddHexagonInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (c *hexagonServiceClient) RepoAddHexagonInfo(ctx context.Context, in *HexIn
 
 func (c *hexagonServiceClient) RepoDelHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/RepoDelHexagonInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoDelHexagonInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *hexagonServiceClient) RepoDelHexagonInfo(ctx context.Context, in *HexID
 
 func (c *hexagonServiceClient) RepoGetHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*HexInfoList, error) {
 	out := new(HexInfoList)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/RepoGetHexagonInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoGetHexagonInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *hexagonServiceClient) RepoGetHexagonInfo(ctx context.Context, in *HexID
 
 func (c *hexagonServiceClient) RepoGetAllHexagonInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*HexInfoList, error) {
 	out := new(HexInfoList)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/RepoGetAllHexagonInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoGetAllHexagonInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (c *hexagonServiceClient) RepoGetAllHexagonInfo(ctx context.Context, in *Em
 
 func (c *hexagonServiceClient) MapAdd(ctx context.Context, in *HexLocation, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/MapAdd", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/MapAdd", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *hexagonServiceClient) MapAdd(ctx context.Context, in *HexLocation, opts
 
 func (c *hexagonServiceClient) MapGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexLocationList, error) {
 	out := new(HexLocationList)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/MapGet", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/MapGet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (c *hexagonServiceClient) MapGet(ctx context.Context, in *HexagonGetRequest
 
 func (c *hexagonServiceClient) MapRemove(ctx context.Context, in *HexLocationList, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/MapRemove", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/MapRemove", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (c *hexagonServiceClient) MapRemove(ctx context.Context, in *HexLocationLis
 
 func (c *hexagonServiceClient) GetStatusServer(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/GetStatusServer", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/GetStatusServer", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (c *hexagonServiceClient) GetStatusServer(ctx context.Context, in *Empty, o
 
 func (c *hexagonServiceClient) GetStatusStorage(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/GetStatusStorage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/GetStatusStorage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (c *hexagonServiceClient) GetStatusStorage(ctx context.Context, in *Empty, 
 
 func (c *hexagonServiceClient) GetStatusClients(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
-	err := c.cc.Invoke(ctx, "/endpoints.hexworld.hexcloud.HexagonService/GetStatusClients", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/GetStatusClients", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +202,7 @@ func _HexagonService_RepoAddHexagonInfo_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/RepoAddHexagonInfo",
+		FullMethod: "/hexcloud.HexagonService/RepoAddHexagonInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).RepoAddHexagonInfo(ctx, req.(*HexInfoList))
@@ -220,7 +220,7 @@ func _HexagonService_RepoDelHexagonInfo_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/RepoDelHexagonInfo",
+		FullMethod: "/hexcloud.HexagonService/RepoDelHexagonInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).RepoDelHexagonInfo(ctx, req.(*HexIDList))
@@ -238,7 +238,7 @@ func _HexagonService_RepoGetHexagonInfo_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/RepoGetHexagonInfo",
+		FullMethod: "/hexcloud.HexagonService/RepoGetHexagonInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).RepoGetHexagonInfo(ctx, req.(*HexIDList))
@@ -256,7 +256,7 @@ func _HexagonService_RepoGetAllHexagonInfo_Handler(srv interface{}, ctx context.
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/RepoGetAllHexagonInfo",
+		FullMethod: "/hexcloud.HexagonService/RepoGetAllHexagonInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).RepoGetAllHexagonInfo(ctx, req.(*Empty))
@@ -274,7 +274,7 @@ func _HexagonService_MapAdd_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/MapAdd",
+		FullMethod: "/hexcloud.HexagonService/MapAdd",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).MapAdd(ctx, req.(*HexLocation))
@@ -292,7 +292,7 @@ func _HexagonService_MapGet_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/MapGet",
+		FullMethod: "/hexcloud.HexagonService/MapGet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).MapGet(ctx, req.(*HexagonGetRequest))
@@ -310,7 +310,7 @@ func _HexagonService_MapRemove_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/MapRemove",
+		FullMethod: "/hexcloud.HexagonService/MapRemove",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).MapRemove(ctx, req.(*HexLocationList))
@@ -328,7 +328,7 @@ func _HexagonService_GetStatusServer_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/GetStatusServer",
+		FullMethod: "/hexcloud.HexagonService/GetStatusServer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).GetStatusServer(ctx, req.(*Empty))
@@ -346,7 +346,7 @@ func _HexagonService_GetStatusStorage_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/GetStatusStorage",
+		FullMethod: "/hexcloud.HexagonService/GetStatusStorage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).GetStatusStorage(ctx, req.(*Empty))
@@ -364,7 +364,7 @@ func _HexagonService_GetStatusClients_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/endpoints.hexworld.hexcloud.HexagonService/GetStatusClients",
+		FullMethod: "/hexcloud.HexagonService/GetStatusClients",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).GetStatusClients(ctx, req.(*Empty))
@@ -376,7 +376,7 @@ func _HexagonService_GetStatusClients_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HexagonService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "endpoints.hexworld.hexcloud.HexagonService",
+	ServiceName: "hexcloud.HexagonService",
 	HandlerType: (*HexagonServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
