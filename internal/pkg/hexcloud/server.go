@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/golang/glog"
 	"hexcloud/internal/pkg/hexgrid"
-	"log"
 )
 
 type Server struct {
@@ -18,7 +18,7 @@ func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
 func (s *Server) RepoAddHexagonInfo(ctx context.Context, hexInfoList *HexInfoList) (result *Result, err error) {
 
 	for _, hexInfo := range hexInfoList.HexInfo {
-		log.Printf("Storing: %s\n", hexInfo.ID)
+		glog.Errorf("Storing: %s\n", hexInfo.ID)
 		s.Storage.StoreHexagonInfo(hexInfo)
 	}
 
@@ -31,7 +31,7 @@ func (s *Server) RepoAddHexagonInfo(ctx context.Context, hexInfoList *HexInfoLis
 
 func (s *Server) RepoDelHexagonInfo(ctx context.Context, hexIDList *HexIDList) (result *Result, err error) {
 	for _, ID := range hexIDList.HexID {
-		log.Printf("Deleting from storage: %s\n", ID)
+		glog.Infof("Deleting from storage: %s\n", ID)
 		s.Storage.DeleteHexagonReference(ID)
 	}
 

@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
+	"github.com/golang/glog"
 	"google.golang.org/grpc"
 	"hexcloud/internal/pkg/hexcloud"
-	"log"
 	"net"
 	"os"
 )
@@ -15,6 +15,7 @@ func main() {
 	flag.StringVar(&address, "address", "0.0.0.0:8080", "address and port number to listen on")
 	flag.BoolVar(&local, "local", false, "running local")
 	flag.Parse()
+	flag.Lookup("logtostderr").Value.Set("true") // setting for glog
 
 	port, set := os.LookupEnv("PORT")
 	if set {
@@ -27,13 +28,13 @@ func main() {
 
 	listen, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		glog.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 	hexcloud.RegisterHexagonServiceServer(s, &hexcloud.Server{Storage: hs, RunsLocal: local})
-	log.Printf("Server listining on: %v", listen.Addr())
+	glog.Infof("Server listining on: %v", listen.Addr())
 	if err := s.Serve(listen); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		glog.Fatalf("failed to serve: %v", err)
 	}
 
 }

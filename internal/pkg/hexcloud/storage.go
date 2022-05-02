@@ -7,8 +7,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/golang/glog"
 	"io"
-	"log"
 	"os"
 	"strconv"
 )
@@ -47,7 +47,7 @@ func (h *HexStorage) RetrieveHexData() {
 func (h *HexStorage) WatchMapChange(ctx context.Context, bucketName string, fileNameMap string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	defer watcher.Close()
 
@@ -59,40 +59,40 @@ func (h *HexStorage) WatchMapChange(ctx context.Context, bucketName string, file
 				if !ok {
 					return
 				}
-				log.Println("event:", event)
+				glog.Infoln("event:", event)
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event.Name)
+					glog.Infoln("modified file:", event.Name)
 					h.loadMap(ctx, bucketName, fileNameMap)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
 				}
-				log.Println("error:", err)
+				glog.Errorln("error:", err)
 			}
 		}
 	}()
 
 	err = watcher.Add(fileNameMap)
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	<-done
 }
 
 func (h *HexStorage) loadRepo(ctx context.Context, bucketName string, fileNameRepo string) {
-	log.Printf("Loading reference repository data")
+	glog.Infof("Loading reference repository data")
 
 	rc, err := readFile(ctx, bucketName, fileNameRepo, h)
 
 	if err != nil {
-		log.Printf("Error reading hexdata file: %v", err)
+		glog.Errorf("Error reading hexdata file: %v", err)
 		return
 	}
 
 	csvLines, err := csv.NewReader(rc).ReadAll()
 	if err != nil {
-		log.Printf("Error reading hexdata file: %v", err)
+		glog.Errorf("Error reading hexdata file: %v", err)
 		return
 	}
 
@@ -109,18 +109,18 @@ func (h *HexStorage) loadRepo(ctx context.Context, bucketName string, fileNameRe
 }
 
 func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap string) {
-	log.Printf("Loading hexagon map data")
+	glog.Infof("Loading hexagon map data")
 
 	rc, err := readFile(ctx, bucketName, fileNameMap, h)
 
 	if err != nil {
-		log.Printf("Error reading hexdata file: %v", err)
+		glog.Errorf("Error reading hexdata file: %v", err)
 		return
 	}
 
 	csvLines, err := csv.NewReader(rc).ReadAll()
 	if err != nil {
-		log.Printf("Error reading hexdata file: %v", err)
+		glog.Errorf("Error reading hexdata file: %v", err)
 		return
 	}
 
@@ -170,15 +170,15 @@ func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap
 		}
 		h.hexMap[hqr] = hex
 	}
-	log.Printf("%d hexagons in map", len(h.hexMap))
+	glog.Infof("%d hexagons in map", len(h.hexMap))
 }
 
 func readFile(ctx context.Context, bucketName string, fileNameMap string, h *HexStorage) (rc io.Reader, err error) {
 	if !h.Local {
-		log.Printf("Reading data from GCP storage file")
+		glog.Infof("Reading data from GCP storage file")
 		client, err := storage.NewClient(ctx)
 		if err != nil {
-			log.Fatalf("Failed to create GCP storage client: %v", err)
+			glog.Fatalf("Failed to create GCP storage client: %v", err)
 			return nil, err
 		}
 		defer client.Close()
@@ -186,14 +186,14 @@ func readFile(ctx context.Context, bucketName string, fileNameMap string, h *Hex
 		bucket := client.Bucket(bucketName)
 		rc, err = bucket.Object(fileNameMap).NewReader(ctx)
 		if err != nil {
-			log.Printf("readFile: unable to open file from bucket %Q, file %Q: %v", bucketName, fileNameMap, err)
+			glog.Errorf("readFile: unable to open file from bucket %Q, file %Q: %v", bucketName, fileNameMap, err)
 			return nil, err
 		}
 	} else {
-		log.Printf("Reading data from local file")
+		glog.Infof("Reading data from local file")
 		f, err := os.Open(fileNameMap)
 		if err != nil {
-			log.Printf("Error opening RunsLocal file %s", fileNameMap)
+			glog.Errorf("Error opening RunsLocal file %s", fileNameMap)
 			return nil, err
 		}
 		rc = bufio.NewReader(f)
@@ -208,7 +208,7 @@ func (h *HexStorage) StoreHexagons() {
 
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Fatalf("Failed to create GCP storage client: %v", err)
+		glog.Errorf("Failed to create GCP storage client: %v", err)
 	}
 	defer client.Close()
 
