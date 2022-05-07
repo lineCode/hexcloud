@@ -82,16 +82,14 @@ func (h *HexStorage) AddHexagonToRepo(hexInfo *HexInfo) {
 		return
 	}
 
-	sql := fmt.Sprintf("INSERT INTO hexrepo ('%s');", hexInfo.ID)
+	sql := fmt.Sprintf("INSERT INTO hexrepo VALUES('%s');", hexInfo.ID)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
-		tx.Rollback()
-		glog.Warningf("Error storing %s - %s\n", sql, err)
-		return
+		glog.Warningf("Warning: %s - %s\n", sql, err)
 	}
 
 	for key, element := range hexInfo.GetData() {
-		sql := fmt.Sprintf("INSERT INTO hexdata ('%s', '%s', '%s');", hexInfo.ID, key, element)
+		sql := fmt.Sprintf("INSERT INTO hexdata VALUES('%s', '%s', '%s');", hexInfo.ID, key, element)
 		_, err := tx.ExecContext(ctx, sql)
 		if err != nil {
 			tx.Rollback()
@@ -131,6 +129,7 @@ func (h *HexStorage) GetHexagonInfo(hexID string) (hexInfo *HexInfo) {
 		return
 	}
 
+	hexInfo.Data = make(map[string]string)
 	for rows.Next() {
 		var id, key, value string
 		rows.Scan(&id, &key, &value)
@@ -148,7 +147,7 @@ func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
 		return
 	}
 
-	sql := fmt.Sprintf("INSERT INTO hexmap (%d, %d, %d, '%s');", hexLocation.X, hexLocation.Y, hexLocation.Z, hexLocation.HexID)
+	sql := fmt.Sprintf("INSERT INTO hexmap VALUES(%d, %d, %d, '%s');", hexLocation.X, hexLocation.Y, hexLocation.Z, hexLocation.HexID)
 	glog.Infof("%s\n", sql)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
@@ -158,7 +157,7 @@ func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
 	}
 
 	for key, element := range hexLocation.GetData() {
-		sql := fmt.Sprintf("INSERT INTO mapdata ('%d', '%d', %s, '%s');", hexLocation.X, hexLocation.Y, key, element)
+		sql := fmt.Sprintf("INSERT INTO mapdata VALUES('%d', '%d', %s, '%s');", hexLocation.X, hexLocation.Y, key, element)
 		glog.Infof("%s\n", sql)
 		_, err := tx.ExecContext(ctx, sql)
 		if err != nil {
