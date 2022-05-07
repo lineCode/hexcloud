@@ -20,11 +20,11 @@ type HexStorage struct {
 	Database *sql.DB
 }
 
-func NewHexStorage(newdb bool, dbName string) *HexStorage {
+func NewHexStorage(newdb bool, dbName string, example bool) *HexStorage {
 	hs := &HexStorage{}
 
 	var err error
-	hs.Database, err = InitialiseDatabase(newdb, dbName)
+	hs.Database, err = InitialiseDatabase(newdb, dbName, example)
 	if err != nil {
 		glog.Fatalf("Error initializing database: %s", err)
 	}
@@ -32,7 +32,7 @@ func NewHexStorage(newdb bool, dbName string) *HexStorage {
 	return hs
 }
 
-func InitialiseDatabase(newdb bool, dbName string) (db *sql.DB, err error) {
+func InitialiseDatabase(newdb bool, dbName string, example bool) (db *sql.DB, err error) {
 	if newdb {
 		err = os.Remove(dbName)
 		if err != nil {
@@ -48,20 +48,32 @@ func InitialiseDatabase(newdb bool, dbName string) (db *sql.DB, err error) {
 	var sql []byte
 	if newdb {
 		sql, err = ioutil.ReadFile("schema.sql")
+		glog.Infof("%s", sql)
+		if err != nil {
+			return
+		}
+		_, err = db.Exec(string(sql))
 		if err != nil {
 			return
 		}
 	}
 
-	_, err = db.Exec(string(sql))
-	if err != nil {
-		return
+	if example {
+		sql, err = ioutil.ReadFile("example.sql")
+		glog.Infof("%s", sql)
+		if err != nil {
+			return
+		}
+		_, err = db.Exec(string(sql))
+		if err != nil {
+			return
+		}
 	}
 
 	return
 }
 
-func (h *HexStorage) StoreHexagonInfo(hexInfo *HexInfo) {
+func (h *HexStorage) AddHexagonToRepo(hexInfo *HexInfo) {
 
 	ctx := context.Background()
 	tx, err := h.Database.BeginTx(ctx, nil)
@@ -137,6 +149,7 @@ func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
 	}
 
 	sql := fmt.Sprintf("INSERT INTO hexmap (%d, %d, %d, '%s');", hexLocation.X, hexLocation.Y, hexLocation.Z, hexLocation.HexID)
+	glog.Infof("%s\n", sql)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
 		tx.Rollback()
@@ -146,6 +159,7 @@ func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
 
 	for key, element := range hexLocation.GetData() {
 		sql := fmt.Sprintf("INSERT INTO mapdata ('%d', '%d', %s, '%s');", hexLocation.X, hexLocation.Y, key, element)
+		glog.Infof("%s\n", sql)
 		_, err := tx.ExecContext(ctx, sql)
 		if err != nil {
 			tx.Rollback()
@@ -162,6 +176,7 @@ func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
 
 func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocation) {
 	sql := fmt.Sprintf("SELECT * FROM hexmap WHERE x = %d AND y = %d;", x, y)
+	glog.Infof("%s\n", sql)
 	rows, err := h.Database.Query(sql)
 	if err != nil {
 		glog.Warningf("Error storing %s - %s\n", sql, err)
@@ -178,6 +193,7 @@ func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocati
 	}
 
 	sql = fmt.Sprintf("SELECT key, value FROM mapdata WHERE hexid = '%s';", hexLocation.HexID)
+	glog.Infof("%s\n", sql)
 	rows, err = h.Database.Query(sql)
 	if err != nil {
 		glog.Warningf("Error storing %s - %s\n", sql, err)
@@ -202,6 +218,7 @@ func (h *HexStorage) DeleteHexagonFromMap(hexLocation *HexLocation) {
 	}
 
 	sql := fmt.Sprintf("DELETE FROM mapdata WHERE x = %d and y = %d;", hexLocation.X, hexLocation.Y)
+	glog.Infof("%s\n", sql)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
 		tx.Rollback()
@@ -210,6 +227,7 @@ func (h *HexStorage) DeleteHexagonFromMap(hexLocation *HexLocation) {
 	}
 
 	sql = fmt.Sprintf("DELETE FROM hexmap WHERE x = %d and y = %d;", hexLocation.X, hexLocation.Y)
+	glog.Infof("%s\n", sql)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
 		tx.Rollback()
@@ -232,6 +250,7 @@ func (h *HexStorage) DeleteHexagonFromRepo(hexID string) {
 	}
 
 	sql := fmt.Sprintf("DELETE FROM hexdata WHERE hexid = '%s';", hexID)
+	glog.Infof("%s\n", sql)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
 		tx.Rollback()
@@ -240,6 +259,7 @@ func (h *HexStorage) DeleteHexagonFromRepo(hexID string) {
 	}
 
 	sql = fmt.Sprintf("DELETE FROM hexrepo WHERE id = '%s';", hexID)
+	glog.Infof("%s\n", sql)
 	_, err = tx.ExecContext(ctx, sql)
 	if err != nil {
 		tx.Rollback()
@@ -255,6 +275,7 @@ func (h *HexStorage) DeleteHexagonFromRepo(hexID string) {
 
 func (h *HexStorage) SizeMap() (count int) {
 	sql := "SELECT COUNT(*) FROM hexmap;"
+	glog.Infof("%s\n", sql)
 
 	row := h.Database.QueryRow(sql)
 	err := row.Scan(&count)
@@ -267,6 +288,7 @@ func (h *HexStorage) SizeMap() (count int) {
 
 func (h *HexStorage) SizeRepo() (count int) {
 	sql := "SELECT COUNT(*) FROM hexrepo;"
+	glog.Infof("%s\n", sql)
 
 	row := h.Database.QueryRow(sql)
 	err := row.Scan(&count)

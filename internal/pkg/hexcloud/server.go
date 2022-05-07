@@ -18,7 +18,7 @@ func (s *Server) RepoAddHexagonInfo(ctx context.Context, hexInfoList *HexInfoLis
 
 	for _, hexInfo := range hexInfoList.HexInfo {
 		glog.Errorf("Storing: %s\n", hexInfo.ID)
-		s.Storage.StoreHexagonInfo(hexInfo)
+		s.Storage.AddHexagonToRepo(hexInfo)
 	}
 
 	result = &Result{
