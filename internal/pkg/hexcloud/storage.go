@@ -45,9 +45,12 @@ func InitialiseDatabase(newdb bool, dbName string) (db *sql.DB, err error) {
 		return
 	}
 
-	sql, err := ioutil.ReadFile("schema.sql")
-	if err != nil {
-		return
+	var sql []byte
+	if newdb {
+		sql, err = ioutil.ReadFile("schema.sql")
+		if err != nil {
+			return
+		}
 	}
 
 	_, err = db.Exec(string(sql))
