@@ -8,6 +8,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/mattn/go-sqlite3 v1.14.12 // indirect
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/api v0.62.0 // indirect

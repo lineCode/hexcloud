@@ -1,16 +1,13 @@
 package hexcloud
 
 import (
-	"bufio"
-	"cloud.google.com/go/storage"
 	"context"
-	"encoding/csv"
+	"database/sql"
 	"fmt"
-	"github.com/fsnotify/fsnotify"
 	"github.com/golang/glog"
-	"io"
+	_ "github.com/mattn/go-sqlite3"
+	"io/ioutil"
 	"os"
-	"strconv"
 )
 
 type HexAxial struct {
@@ -19,213 +16,260 @@ type HexAxial struct {
 }
 
 type HexStorage struct {
-	hexMap  map[HexAxial]*HexLocation
-	hexRepo map[string]*HexInfo
-	Local   bool
+	Local    bool
+	Database *sql.DB
 }
 
-func NewHexStorage() *HexStorage {
+func NewHexStorage(newdb bool, dbName string) *HexStorage {
 	hs := &HexStorage{}
-	hs.hexMap = make(map[HexAxial]*HexLocation)
-	hs.hexRepo = make(map[string]*HexInfo)
+
+	var err error
+	hs.Database, err = InitialiseDatabase(newdb, dbName)
+	if err != nil {
+		glog.Fatalf("Error initializing database: %s", err)
+	}
+
 	return hs
 }
 
-func (h *HexStorage) RetrieveHexData() {
-	ctx := context.Background()
-	//projectID := "robot-motel"
-	bucketName := "hexworld"
-	fileNameMap := "hexmap.txt"
-	fileNameRepo := "hexrepo.txt"
-
-	h.loadRepo(ctx, bucketName, fileNameRepo)
-	h.loadMap(ctx, bucketName, fileNameMap)
-	go h.WatchMapChange(ctx, bucketName, fileNameMap)
-
-}
-
-func (h *HexStorage) WatchMapChange(ctx context.Context, bucketName string, fileNameMap string) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		glog.Fatal(err)
-	}
-	defer watcher.Close()
-
-	done := make(chan bool)
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				glog.Infoln("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					glog.Infoln("modified file:", event.Name)
-					h.loadMap(ctx, bucketName, fileNameMap)
-				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				glog.Errorln("error:", err)
-			}
-		}
-	}()
-
-	err = watcher.Add(fileNameMap)
-	if err != nil {
-		glog.Fatal(err)
-	}
-	<-done
-}
-
-func (h *HexStorage) loadRepo(ctx context.Context, bucketName string, fileNameRepo string) {
-	glog.Infof("Loading reference repository data")
-
-	rc, err := readFile(ctx, bucketName, fileNameRepo, h)
-
-	if err != nil {
-		glog.Errorf("Error reading hexdata file: %v", err)
-		return
-	}
-
-	csvLines, err := csv.NewReader(rc).ReadAll()
-	if err != nil {
-		glog.Errorf("Error reading hexdata file: %v", err)
-		return
-	}
-
-	for _, line := range csvLines {
-		Exits, _ := strconv.ParseInt(line[1], 10, 64)
-		ID := line[0]
-		hexInfo := &HexInfo{
-			ID:    ID,
-			Exits: uint32(Exits),
-		}
-		h.hexRepo[ID] = hexInfo
-	}
-
-}
-
-func (h *HexStorage) loadMap(ctx context.Context, bucketName string, fileNameMap string) {
-	glog.Infof("Loading hexagon map data")
-
-	rc, err := readFile(ctx, bucketName, fileNameMap, h)
-
-	if err != nil {
-		glog.Errorf("Error reading hexdata file: %v", err)
-		return
-	}
-
-	csvLines, err := csv.NewReader(rc).ReadAll()
-	if err != nil {
-		glog.Errorf("Error reading hexdata file: %v", err)
-		return
-	}
-
-	var hexDirection Direction
-
-	for _, line := range csvLines {
-		x, _ := strconv.ParseInt(line[0], 10, 64)
-		y, _ := strconv.ParseInt(line[1], 10, 64)
-		z, _ := strconv.ParseInt(line[2], 10, 64)
-		hexID := line[3]
-		if len(line) > 4 {
-			switch line[4] {
-			case "N":
-				hexDirection = Direction_N
-			case "NE":
-				hexDirection = Direction_NE
-			case "E":
-				hexDirection = Direction_E
-			case "SE":
-				hexDirection = Direction_SE
-			case "S":
-				hexDirection = Direction_S
-			case "SW":
-				hexDirection = Direction_SW
-			case "W":
-				hexDirection = Direction_W
-			case "NW":
-				hexDirection = Direction_NW
-			default:
-				hexDirection = Direction_N
-			}
-		} else {
-			hexDirection = Direction_N
-		}
-
-		hex := &HexLocation{
-			X:         x,
-			Y:         y,
-			Z:         z,
-			Direction: hexDirection,
-			HexID:     hexID,
-		}
-
-		hqr := HexAxial{
-			Q: x,
-			R: y,
-		}
-		h.hexMap[hqr] = hex
-	}
-	glog.Infof("%d hexagons in map", len(h.hexMap))
-}
-
-func readFile(ctx context.Context, bucketName string, fileNameMap string, h *HexStorage) (rc io.Reader, err error) {
-	if !h.Local {
-		glog.Infof("Reading data from GCP storage file")
-		client, err := storage.NewClient(ctx)
+func InitialiseDatabase(newdb bool, dbName string) (db *sql.DB, err error) {
+	if newdb {
+		err = os.Remove(dbName)
 		if err != nil {
-			glog.Fatalf("Failed to create GCP storage client: %v", err)
-			return nil, err
+			return
 		}
-		defer client.Close()
-
-		bucket := client.Bucket(bucketName)
-		rc, err = bucket.Object(fileNameMap).NewReader(ctx)
-		if err != nil {
-			glog.Errorf("readFile: unable to open file from bucket %Q, file %Q: %v", bucketName, fileNameMap, err)
-			return nil, err
-		}
-	} else {
-		glog.Infof("Reading data from local file")
-		f, err := os.Open(fileNameMap)
-		if err != nil {
-			glog.Errorf("Error opening RunsLocal file %s", fileNameMap)
-			return nil, err
-		}
-		rc = bufio.NewReader(f)
 	}
-	return rc, nil
-}
 
-func (h *HexStorage) StoreHexagons() {
-	ctx := context.Background()
-	bucketName := "hexworld"
-	fileName := "hexmap.txt"
-
-	client, err := storage.NewClient(ctx)
+	db, err = sql.Open("sqlite3", dbName)
 	if err != nil {
-		glog.Errorf("Failed to create GCP storage client: %v", err)
+		return
 	}
-	defer client.Close()
 
-	bucket := client.Bucket(bucketName)
-	rc := bucket.Object(fileName).NewWriter(ctx)
-	defer rc.Close()
-
-	for _, hex := range h.hexMap {
-		s := fmt.Sprintf("%d,%d,%d,%s,%s\n", hex.X, hex.Y, hex.Z, hex.Direction, hex.HexID)
-		rc.Write([]byte(s))
+	sql, err := ioutil.ReadFile("schema.sql")
+	if err != nil {
+		return
 	}
+
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 func (h *HexStorage) StoreHexagonInfo(hexInfo *HexInfo) {
-	h.hexRepo[hexInfo.ID] = hexInfo
+
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", hexInfo.ID, err)
+		return
+	}
+
+	sql := fmt.Sprintf("INSERT INTO hexrepo ('%s');", hexInfo.ID)
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		tx.Rollback()
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	for key, element := range hexInfo.GetData() {
+		sql := fmt.Sprintf("INSERT INTO hexdata ('%s', '%s', '%s');", hexInfo.ID, key, element)
+		_, err := tx.ExecContext(ctx, sql)
+		if err != nil {
+			tx.Rollback()
+			glog.Warningf("Error storing %s - %s\n", sql, err)
+			return
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", hexInfo.ID, err)
+	}
+
 }
 
-func (h *HexStorage) DeleteHexagonReference(ID string) {
-	delete(h.hexRepo, ID)
+func (h *HexStorage) GetHexagonInfo(hexID string) (hexInfo *HexInfo) {
+	sql := fmt.Sprintf("SELECT * FROM hexrepo WHERE id = '%s';", hexID)
+	rows, err := h.Database.Query(sql)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	rows.Next()
+
+	hexInfo = &HexInfo{}
+	err = rows.Scan(&hexInfo.ID)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	sql = fmt.Sprintf("SELECT * FROM hexdata WHERE hexid = '%s';", hexInfo.ID)
+	rows, err = h.Database.Query(sql)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	for rows.Next() {
+		var id, key, value string
+		rows.Scan(&id, &key, &value)
+		hexInfo.Data[key] = value
+	}
+
+	return
+}
+
+func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", hexLocation.HexID, err)
+		return
+	}
+
+	sql := fmt.Sprintf("INSERT INTO hexmap (%d, %d, %d, '%s');", hexLocation.X, hexLocation.Y, hexLocation.Z, hexLocation.HexID)
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		tx.Rollback()
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	for key, element := range hexLocation.GetData() {
+		sql := fmt.Sprintf("INSERT INTO mapdata ('%d', '%d', %s, '%s');", hexLocation.X, hexLocation.Y, key, element)
+		_, err := tx.ExecContext(ctx, sql)
+		if err != nil {
+			tx.Rollback()
+			glog.Warningf("Error storing %s - %s\n", sql, err)
+			return
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Warningf("Error adding %s to map - %s\n", hexLocation.HexID, err)
+	}
+}
+
+func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocation) {
+	sql := fmt.Sprintf("SELECT * FROM hexmap WHERE x = %d AND y = %d;", x, y)
+	rows, err := h.Database.Query(sql)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	rows.Next()
+
+	hexLocation = &HexLocation{}
+	err = rows.Scan(&hexLocation.X, &hexLocation.Y, &hexLocation.Z, &hexLocation.HexID)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	sql = fmt.Sprintf("SELECT key, value FROM mapdata WHERE hexid = '%s';", hexLocation.HexID)
+	rows, err = h.Database.Query(sql)
+	if err != nil {
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	for rows.Next() {
+		var key, value string
+		rows.Scan(&key, &value)
+		hexLocation.Data[key] = value
+	}
+
+	return
+}
+
+func (h *HexStorage) DeleteHexagonFromMap(hexLocation *HexLocation) {
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Warningf("Error deleting [%d, %d, %d] - %s\n", hexLocation.X, hexLocation.Y, -1*hexLocation.X-hexLocation.Y, err)
+		return
+	}
+
+	sql := fmt.Sprintf("DELETE FROM mapdata WHERE x = %d and y = %d;", hexLocation.X, hexLocation.Y)
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		tx.Rollback()
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	sql = fmt.Sprintf("DELETE FROM hexmap WHERE x = %d and y = %d;", hexLocation.X, hexLocation.Y)
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		tx.Rollback()
+		glog.Warningf("Error deleting %s - %s\n", sql, err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Warningf("Error deleting %d, %d - %s\n", hexLocation.X, hexLocation.Y, err)
+	}
+}
+
+func (h *HexStorage) DeleteHexagonFromRepo(hexID string) {
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Warningf("Error deleting %s - %s\n", hexID, err)
+		return
+	}
+
+	sql := fmt.Sprintf("DELETE FROM hexdata WHERE hexid = '%s';", hexID)
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		tx.Rollback()
+		glog.Warningf("Error storing %s - %s\n", sql, err)
+		return
+	}
+
+	sql = fmt.Sprintf("DELETE FROM hexrepo WHERE id = '%s';", hexID)
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		tx.Rollback()
+		glog.Warningf("Error deleting %s - %s\n", sql, err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Warningf("Error deleting %s - %s\n", hexID, err)
+	}
+}
+
+func (h *HexStorage) SizeMap() (count int) {
+	sql := "SELECT COUNT(*) FROM hexmap;"
+
+	row := h.Database.QueryRow(sql)
+	err := row.Scan(&count)
+	if err != nil {
+		glog.Errorf("Error counting rows in map: %s", err)
+	}
+
+	return count
+}
+
+func (h *HexStorage) SizeRepo() (count int) {
+	sql := "SELECT COUNT(*) FROM hexrepo;"
+
+	row := h.Database.QueryRow(sql)
+	err := row.Scan(&count)
+	if err != nil {
+		glog.Errorf("Error counting rows in repository: %s", err)
+	}
+
+	return count
 }

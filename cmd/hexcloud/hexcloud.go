@@ -12,8 +12,13 @@ import (
 func main() {
 	var address string
 	var local bool
+	var newdb bool
+	var dbName string
 	flag.StringVar(&address, "address", "0.0.0.0:8080", "address and port number to listen on")
 	flag.BoolVar(&local, "local", false, "running local")
+	flag.BoolVar(&newdb, "new", false, "start new storage")
+	flag.BoolVar(&newdb, "mem", false, "run database in memory")
+	flag.StringVar(&dbName, "dbname", "hexagon.db", "name of database file")
 	flag.Parse()
 	flag.Lookup("logtostderr").Value.Set("true") // setting for glog
 
@@ -22,9 +27,8 @@ func main() {
 		address = "0.0.0.0:" + port
 	}
 
-	hs := hexcloud.NewHexStorage()
+	hs := hexcloud.NewHexStorage(newdb, dbName)
 	hs.Local = local
-	hs.RetrieveHexData()
 
 	listen, err := net.Listen("tcp", address)
 	if err != nil {
