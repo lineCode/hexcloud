@@ -37,6 +37,12 @@ message HexIDList {
     repeated string HexID = 1;
 }
 
+message HexIDData {
+    string HexID = 1;
+    string dataKey = 2;
+    string value = 3;
+}
+
 message Status {
     string msg = 1;
 }
@@ -47,9 +53,11 @@ message Result {
 
 service HexagonService {
     rpc RepoAddHexagonInfo(HexInfoList) returns(Result);
-    rpc RepoDelHexagonInfo(HexIDList) returns(Result);
     rpc RepoGetHexagonInfo(HexIDList) returns(HexInfoList);
+    rpc RepoGetHexagonInfoData(HexIDData) returns(HexIDData);
     rpc RepoGetAllHexagonInfo(Empty) returns(HexInfoList);
+    rpc RepoDelHexagonInfo(HexIDList) returns(Result);
+    rpc RepoDelHexagonInfoData(HexIDData) returns(Result);
 
     rpc MapAdd(HexLocationList) returns (Result);
     rpc MapGet(HexagonGetRequest) returns (HexLocationList);

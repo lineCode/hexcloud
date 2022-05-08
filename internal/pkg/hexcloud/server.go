@@ -12,6 +12,13 @@ type Server struct {
 	RunsLocal bool
 }
 
+func (s *Server) RepoGetHexagonInfoData(ctx context.Context, data *HexIDData) (hexIDData *HexIDData, err error) {
+
+	hexIDData = s.Storage.GetHexagonInfoData(data.HexID, data.DataKey)
+	return
+
+}
+
 func (s *Server) mustEmbedUnimplementedHexagonServiceServer() {}
 
 func (s *Server) RepoAddHexagonInfo(ctx context.Context, hexInfoList *HexInfoList) (result *Result, err error) {
@@ -33,6 +40,18 @@ func (s *Server) RepoDelHexagonInfo(ctx context.Context, hexIDList *HexIDList) (
 		glog.Infof("Deleting from storage: %s\n", ID)
 		s.Storage.DeleteHexagonFromRepo(ID)
 	}
+
+	result = &Result{
+		Success: true,
+	}
+
+	return result, err
+}
+
+func (s *Server) RepoDelHexagonInfoData(ctx context.Context, hexIDData *HexIDData) (result *Result, err error) {
+
+	glog.Infof("Deleting data key from storage: %s %s\n", hexIDData.HexID, hexIDData.DataKey)
+	s.Storage.DeleteHexagonDataFromRepo(hexIDData.HexID, hexIDData.DataKey)
 
 	result = &Result{
 		Success: true,

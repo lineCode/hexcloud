@@ -19,9 +19,11 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HexagonServiceClient interface {
 	RepoAddHexagonInfo(ctx context.Context, in *HexInfoList, opts ...grpc.CallOption) (*Result, error)
-	RepoDelHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*Result, error)
 	RepoGetHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*HexInfoList, error)
+	RepoGetHexagonInfoData(ctx context.Context, in *HexIDData, opts ...grpc.CallOption) (*HexIDData, error)
 	RepoGetAllHexagonInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*HexInfoList, error)
+	RepoDelHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*Result, error)
+	RepoDelHexagonInfoData(ctx context.Context, in *HexIDData, opts ...grpc.CallOption) (*Result, error)
 	MapAdd(ctx context.Context, in *HexLocationList, opts ...grpc.CallOption) (*Result, error)
 	MapGet(ctx context.Context, in *HexagonGetRequest, opts ...grpc.CallOption) (*HexLocationList, error)
 	MapRemove(ctx context.Context, in *HexLocationList, opts ...grpc.CallOption) (*Result, error)
@@ -47,15 +49,6 @@ func (c *hexagonServiceClient) RepoAddHexagonInfo(ctx context.Context, in *HexIn
 	return out, nil
 }
 
-func (c *hexagonServiceClient) RepoDelHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*Result, error) {
-	out := new(Result)
-	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoDelHexagonInfo", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *hexagonServiceClient) RepoGetHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*HexInfoList, error) {
 	out := new(HexInfoList)
 	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoGetHexagonInfo", in, out, opts...)
@@ -65,9 +58,36 @@ func (c *hexagonServiceClient) RepoGetHexagonInfo(ctx context.Context, in *HexID
 	return out, nil
 }
 
+func (c *hexagonServiceClient) RepoGetHexagonInfoData(ctx context.Context, in *HexIDData, opts ...grpc.CallOption) (*HexIDData, error) {
+	out := new(HexIDData)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoGetHexagonInfoData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *hexagonServiceClient) RepoGetAllHexagonInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*HexInfoList, error) {
 	out := new(HexInfoList)
 	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoGetAllHexagonInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hexagonServiceClient) RepoDelHexagonInfo(ctx context.Context, in *HexIDList, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoDelHexagonInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hexagonServiceClient) RepoDelHexagonInfoData(ctx context.Context, in *HexIDData, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, "/hexcloud.HexagonService/RepoDelHexagonInfoData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,9 +153,11 @@ func (c *hexagonServiceClient) GetStatusClients(ctx context.Context, in *Empty, 
 // for forward compatibility
 type HexagonServiceServer interface {
 	RepoAddHexagonInfo(context.Context, *HexInfoList) (*Result, error)
-	RepoDelHexagonInfo(context.Context, *HexIDList) (*Result, error)
 	RepoGetHexagonInfo(context.Context, *HexIDList) (*HexInfoList, error)
+	RepoGetHexagonInfoData(context.Context, *HexIDData) (*HexIDData, error)
 	RepoGetAllHexagonInfo(context.Context, *Empty) (*HexInfoList, error)
+	RepoDelHexagonInfo(context.Context, *HexIDList) (*Result, error)
+	RepoDelHexagonInfoData(context.Context, *HexIDData) (*Result, error)
 	MapAdd(context.Context, *HexLocationList) (*Result, error)
 	MapGet(context.Context, *HexagonGetRequest) (*HexLocationList, error)
 	MapRemove(context.Context, *HexLocationList) (*Result, error)
@@ -152,14 +174,20 @@ type UnimplementedHexagonServiceServer struct {
 func (UnimplementedHexagonServiceServer) RepoAddHexagonInfo(context.Context, *HexInfoList) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepoAddHexagonInfo not implemented")
 }
-func (UnimplementedHexagonServiceServer) RepoDelHexagonInfo(context.Context, *HexIDList) (*Result, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RepoDelHexagonInfo not implemented")
-}
 func (UnimplementedHexagonServiceServer) RepoGetHexagonInfo(context.Context, *HexIDList) (*HexInfoList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepoGetHexagonInfo not implemented")
 }
+func (UnimplementedHexagonServiceServer) RepoGetHexagonInfoData(context.Context, *HexIDData) (*HexIDData, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepoGetHexagonInfoData not implemented")
+}
 func (UnimplementedHexagonServiceServer) RepoGetAllHexagonInfo(context.Context, *Empty) (*HexInfoList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RepoGetAllHexagonInfo not implemented")
+}
+func (UnimplementedHexagonServiceServer) RepoDelHexagonInfo(context.Context, *HexIDList) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepoDelHexagonInfo not implemented")
+}
+func (UnimplementedHexagonServiceServer) RepoDelHexagonInfoData(context.Context, *HexIDData) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepoDelHexagonInfoData not implemented")
 }
 func (UnimplementedHexagonServiceServer) MapAdd(context.Context, *HexLocationList) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MapAdd not implemented")
@@ -210,24 +238,6 @@ func _HexagonService_RepoAddHexagonInfo_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HexagonService_RepoDelHexagonInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HexIDList)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HexagonServiceServer).RepoDelHexagonInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/hexcloud.HexagonService/RepoDelHexagonInfo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HexagonServiceServer).RepoDelHexagonInfo(ctx, req.(*HexIDList))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _HexagonService_RepoGetHexagonInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HexIDList)
 	if err := dec(in); err != nil {
@@ -246,6 +256,24 @@ func _HexagonService_RepoGetHexagonInfo_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HexagonService_RepoGetHexagonInfoData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HexIDData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HexagonServiceServer).RepoGetHexagonInfoData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hexcloud.HexagonService/RepoGetHexagonInfoData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HexagonServiceServer).RepoGetHexagonInfoData(ctx, req.(*HexIDData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HexagonService_RepoGetAllHexagonInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -260,6 +288,42 @@ func _HexagonService_RepoGetAllHexagonInfo_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HexagonServiceServer).RepoGetAllHexagonInfo(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HexagonService_RepoDelHexagonInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HexIDList)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HexagonServiceServer).RepoDelHexagonInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hexcloud.HexagonService/RepoDelHexagonInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HexagonServiceServer).RepoDelHexagonInfo(ctx, req.(*HexIDList))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HexagonService_RepoDelHexagonInfoData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HexIDData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HexagonServiceServer).RepoDelHexagonInfoData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hexcloud.HexagonService/RepoDelHexagonInfoData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HexagonServiceServer).RepoDelHexagonInfoData(ctx, req.(*HexIDData))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -384,16 +448,24 @@ var HexagonService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HexagonService_RepoAddHexagonInfo_Handler,
 		},
 		{
-			MethodName: "RepoDelHexagonInfo",
-			Handler:    _HexagonService_RepoDelHexagonInfo_Handler,
-		},
-		{
 			MethodName: "RepoGetHexagonInfo",
 			Handler:    _HexagonService_RepoGetHexagonInfo_Handler,
 		},
 		{
+			MethodName: "RepoGetHexagonInfoData",
+			Handler:    _HexagonService_RepoGetHexagonInfoData_Handler,
+		},
+		{
 			MethodName: "RepoGetAllHexagonInfo",
 			Handler:    _HexagonService_RepoGetAllHexagonInfo_Handler,
+		},
+		{
+			MethodName: "RepoDelHexagonInfo",
+			Handler:    _HexagonService_RepoDelHexagonInfo_Handler,
+		},
+		{
+			MethodName: "RepoDelHexagonInfoData",
+			Handler:    _HexagonService_RepoDelHexagonInfoData_Handler,
 		},
 		{
 			MethodName: "MapAdd",

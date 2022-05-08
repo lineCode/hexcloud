@@ -109,7 +109,7 @@ func (h *HexStorage) GetHexagonInfo(hexID string) (hexInfo *HexInfo) {
 	sql := fmt.Sprintf("SELECT * FROM hexrepo WHERE id = '%s';", hexID)
 	rows, err := h.Database.Query(sql)
 	if err != nil {
-		glog.Warningf("Error storing %s - %s\n", sql, err)
+		glog.Warningf("Warning: %s - %s\n", sql, err)
 		return
 	}
 
@@ -296,4 +296,29 @@ func (h *HexStorage) SizeRepo() (count int) {
 	}
 
 	return count
+}
+
+func (h *HexStorage) DeleteHexagonDataFromRepo(id string, key string) {
+	sql := fmt.Sprintf("DELETE FROM hexdata WHERE hexid = '%s' AND key = '%s';", id, key)
+	glog.Infof("%s\n", sql)
+
+	_, err := h.Database.Exec(sql)
+	if err != nil {
+		glog.Warningf("Warning deleting key: %s", err)
+	}
+}
+
+func (h *HexStorage) GetHexagonInfoData(id string, key string) (hexIDData *HexIDData) {
+	sql := fmt.Sprintf("SELECT * FROM hexdata WHERE hexid = '%s' AND key = '%s';", id, key)
+	glog.Infof("%s\n", sql)
+
+	row := h.Database.QueryRow(sql)
+
+	hexIDData = &HexIDData{}
+	err := row.Scan(&hexIDData.HexID, &hexIDData.DataKey, &hexIDData.Value)
+	if err != nil {
+		glog.Warningf("Warning retrieving data: %s", err)
+	}
+
+	return
 }
