@@ -43,6 +43,14 @@ message HexIDData {
     string value = 3;
 }
 
+message HexLocData {
+    int64 X = 1;
+    int64 Y = 2;
+    int64 Z = 3;
+    string dataKey = 4;
+    string value = 5;
+}
+
 message Status {
     string msg = 1;
 }
@@ -60,6 +68,7 @@ service HexagonService {
     rpc RepoDelHexagonInfoData(HexIDData) returns(Result);
 
     rpc MapAdd(HexLocationList) returns (Result);
+    rpc MapAddData(HexLocData) returns (Result);
     rpc MapGet(HexagonGetRequest) returns (HexLocationList);
     rpc MapRemove(HexLocationList) returns(Result);
 

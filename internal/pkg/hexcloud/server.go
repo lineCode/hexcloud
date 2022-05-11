@@ -12,6 +12,21 @@ type Server struct {
 	RunsLocal bool
 }
 
+func (s *Server) MapAddData(ctx context.Context, data *HexLocData) (result *Result, err error) {
+	err = s.Storage.AddDataToMap(data)
+
+	if err != nil {
+		result = &Result{
+			Success: false,
+		}
+	} else {
+		result = &Result{
+			Success: true,
+		}
+	}
+	return result, err
+}
+
 func (s *Server) RepoGetHexagonInfoData(ctx context.Context, data *HexIDData) (hexIDData *HexIDData, err error) {
 
 	hexIDData = s.Storage.GetHexagonInfoData(data.HexID, data.DataKey)

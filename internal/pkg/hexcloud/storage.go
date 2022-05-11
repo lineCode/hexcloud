@@ -322,3 +322,30 @@ func (h *HexStorage) GetHexagonInfoData(id string, key string) (hexIDData *HexID
 
 	return
 }
+
+func (h *HexStorage) AddDataToMap(data *HexLocData) (err error) {
+	sql := fmt.Sprintf("INSERT INTO mapdata (x, y, key, value) VALUES(%d, %d, '%s', '%s');", data.X, data.Y, data.DataKey, data.Value)
+	glog.Infof("%s\n", sql)
+
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Warningf("Error storing %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, data.DataKey, data.Value, err)
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, sql)
+	if err != nil {
+		glog.Warningf("Warning: %s - %s\n", sql, err)
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Warningf("Error storing %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, data.DataKey, data.Value, err)
+		return err
+	}
+
+	return nil
+}
