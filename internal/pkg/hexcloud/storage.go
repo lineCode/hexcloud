@@ -185,17 +185,18 @@ func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocati
 	rows.Next()
 
 	hexLocation = &HexLocation{}
+	hexLocation.Data = make(map[string]string)
 	err = rows.Scan(&hexLocation.X, &hexLocation.Y, &hexLocation.Z, &hexLocation.HexID)
 	if err != nil {
 		glog.Warningf("Error storing %s - %s\n", sql, err)
 		return
 	}
 
-	sql = fmt.Sprintf("SELECT key, value FROM mapdata WHERE hexid = '%s';", hexLocation.HexID)
+	sql = fmt.Sprintf("SELECT key, value FROM mapdata WHERE x=%d AND y=%d ;", x, y)
 	glog.Infof("%s\n", sql)
 	rows, err = h.Database.Query(sql)
 	if err != nil {
-		glog.Warningf("Error storing %s - %s\n", sql, err)
+		glog.Warningf("Warning %s - %s\n", sql, err)
 		return
 	}
 
