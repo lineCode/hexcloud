@@ -82,10 +82,12 @@ func (h *HexStorage) AddHexagonToRepo(hexInfo *HexInfo) {
 		return
 	}
 
-	sql := fmt.Sprintf("INSERT INTO hexrepo VALUES('%s');", hexInfo.ID)
-	_, err = tx.ExecContext(ctx, sql)
-	if err != nil {
-		glog.Warningf("Warning: %s - %s\n", sql, err)
+	if hexInfo.ID != "" {
+		sql := fmt.Sprintf("INSERT INTO hexrepo VALUES('%s');", hexInfo.ID)
+		_, err = tx.ExecContext(ctx, sql)
+		if err != nil {
+			glog.Warningf("Warning: %s - %s\n", sql, err)
+		}
 	}
 
 	for key, element := range hexInfo.GetData() {
@@ -349,4 +351,97 @@ func (h *HexStorage) AddDataToMap(data *HexLocData) (err error) {
 	}
 
 	return nil
+}
+
+func (h *HexStorage) MapUpdate(data *HexLocation) (err error) {
+
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Errorf("Error Updating %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, err)
+		return err
+	}
+
+	if data.HexID != "" {
+		sql := fmt.Sprintf("UPDATE hexmap SET hexid = '%s' WHERE x=%d AND y=%d;", data.HexID, data.X, data.Y)
+		_, err = tx.ExecContext(ctx, sql)
+		if err != nil {
+			glog.Errorf("Warning: %s - %s\n", sql, err)
+			tx.Rollback()
+			return err
+		}
+	}
+
+	for key, value := range data.Data {
+		sql := fmt.Sprintf("INSERT OR REPLACE INTO mapdata(x, y, key,value) VALUES(%d,%d,'%s','%s');", data.X, data.Y, key, value)
+		_, err = tx.ExecContext(ctx, sql)
+		if err != nil {
+			glog.Errorf("Warning: %s - %s\n", sql, err)
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Errorf("Error storing %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, err)
+		return err
+	}
+
+	return nil
+}
+
+func (h *HexStorage) MapRemove(data *HexLocation) (err error) {
+
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Errorf("Error Updating %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, err)
+		return err
+	}
+
+	if data.HexID != "" {
+		sql := fmt.Sprintf("DELETE FROM hexmap WHERE x=%d AND y=%d", data.X, data.Y)
+		_, err = tx.ExecContext(ctx, sql)
+		if err != nil {
+			glog.Errorf("Warning: %s - %s\n", sql, err)
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Errorf("Error removing %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, err)
+		return err
+	}
+
+	return nil
+}
+
+func (h *HexStorage) MapRemoveData(data *HexLocation) (err error) {
+
+	ctx := context.Background()
+	tx, err := h.Database.BeginTx(ctx, nil)
+	if err != nil {
+		glog.Errorf("Error Updating data on %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, err)
+		return err
+	}
+
+	for key, _ := range data.Data {
+		sql := fmt.Sprintf("DELETE FROM mapdata WHERE x=%d AND y=%d AND key='%s';", data.X, data.Y, key)
+		_, err = tx.ExecContext(ctx, sql)
+		if err != nil {
+			glog.Errorf("Error Updating data on %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, key)
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		glog.Errorf("Error removing %d %d %d %s %s\n%s\n", data.X, data.Y, data.Z, err)
+		return err
+	}
+	return
 }

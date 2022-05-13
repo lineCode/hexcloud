@@ -70,7 +70,10 @@ service HexagonService {
     rpc MapAdd(HexLocationList) returns (Result);
     rpc MapAddData(HexLocData) returns (Result);
     rpc MapGet(HexagonGetRequest) returns (HexLocationList);
+    rpc MapUpdate(HexLocation) returns (Result);
+    rpc MapUpdateData(HexLocation) returns (Result);
     rpc MapRemove(HexLocationList) returns(Result);
+    rpc MapRemoveData(HexLocation) returns(Result);
 
     rpc GetStatusServer(Empty) returns(Status);
     rpc GetStatusStorage(Empty) returns(Status);

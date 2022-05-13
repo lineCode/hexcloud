@@ -12,6 +12,53 @@ type Server struct {
 	RunsLocal bool
 }
 
+func (s *Server) MapUpdate(ctx context.Context, data *HexLocation) (result *Result, err error) {
+	s.Storage.MapUpdate(data)
+
+	if err != nil {
+		result = &Result{
+			Success: false,
+		}
+	} else {
+		result = &Result{
+			Success: true,
+		}
+	}
+	return result, err
+
+}
+
+func (s *Server) MapUpdateData(ctx context.Context, data *HexLocation) (result *Result, err error) {
+	s.Storage.MapUpdate(data)
+
+	if err != nil {
+		result = &Result{
+			Success: false,
+		}
+	} else {
+		result = &Result{
+			Success: true,
+		}
+	}
+	return result, err
+}
+
+func (s *Server) MapRemoveData(ctx context.Context, data *HexLocation) (result *Result, err error) {
+	s.Storage.MapRemoveData(data)
+
+	if err != nil {
+		result = &Result{
+			Success: false,
+		}
+	} else {
+		result = &Result{
+			Success: true,
+		}
+	}
+	return result, err
+
+}
+
 func (s *Server) MapAddData(ctx context.Context, data *HexLocData) (result *Result, err error) {
 	err = s.Storage.AddDataToMap(data)
 
