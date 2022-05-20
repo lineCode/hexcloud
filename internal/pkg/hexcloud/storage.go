@@ -110,6 +110,8 @@ func (h *HexStorage) AddHexagonToRepo(hexInfo *HexInfo) {
 func (h *HexStorage) GetHexagonInfo(hexID string) (hexInfo *HexInfo) {
 	sql := fmt.Sprintf("SELECT * FROM hexrepo WHERE id = '%s';", hexID)
 	rows, err := h.Database.Query(sql)
+	defer rows.Close()
+
 	if err != nil {
 		glog.Warningf("Warning: %s - %s\n", sql, err)
 		return
@@ -158,7 +160,7 @@ func (h *HexStorage) AddHexagonToMap(hexLocation *HexLocation) {
 		return
 	}
 
-	for key, element := range hexLocation.GetData() {
+	for key, element := range hexLocation.GetLocalData() {
 		sql := fmt.Sprintf("INSERT INTO mapdata VALUES('%d', '%d', %s, '%s');", hexLocation.X, hexLocation.Y, key, element)
 		glog.Infof("%s\n", sql)
 		_, err := tx.ExecContext(ctx, sql)
@@ -179,6 +181,8 @@ func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocati
 	sql := fmt.Sprintf("SELECT * FROM hexmap WHERE x = %d AND y = %d;", x, y)
 	glog.Infof("%s\n", sql)
 	rows, err := h.Database.Query(sql)
+	defer rows.Close()
+
 	if err != nil {
 		glog.Warningf("Error storing %s - %s\n", sql, err)
 		return
@@ -187,10 +191,10 @@ func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocati
 	rows.Next()
 
 	hexLocation = &HexLocation{}
-	hexLocation.Data = make(map[string]string)
+	hexLocation.LocalData = make(map[string]string)
 	err = rows.Scan(&hexLocation.X, &hexLocation.Y, &hexLocation.Z, &hexLocation.HexID)
 	if err != nil {
-		glog.Warningf("Error storing %s - %s\n", sql, err)
+		glog.Warningf("Error retrieving hexagon from repository %s - %s\n", sql, err)
 		return
 	}
 
@@ -205,7 +209,22 @@ func (h *HexStorage) GetHexagonFromMap(x int64, y int64) (hexLocation *HexLocati
 	for rows.Next() {
 		var key, value string
 		rows.Scan(&key, &value)
-		hexLocation.Data[key] = value
+		hexLocation.LocalData[key] = value
+	}
+
+	hexLocation.GlobalData = make(map[string]string)
+	sql = fmt.Sprintf("SELECT key, value FROM hexdata WHERE hexid = '%s' ;", hexLocation.HexID)
+	glog.Infof("%s\n", sql)
+	rows, err = h.Database.Query(sql)
+	if err != nil {
+		glog.Warningf("Warning %s - %s\n", sql, err)
+		return
+	}
+
+	for rows.Next() {
+		var key, value string
+		rows.Scan(&key, &value)
+		hexLocation.GlobalData[key] = value
 	}
 
 	return
@@ -372,7 +391,7 @@ func (h *HexStorage) MapUpdate(data *HexLocation) (err error) {
 		}
 	}
 
-	for key, value := range data.Data {
+	for key, value := range data.LocalData {
 		sql := fmt.Sprintf("INSERT OR REPLACE INTO mapdata(x, y, key,value) VALUES(%d,%d,'%s','%s');", data.X, data.Y, key, value)
 		_, err = tx.ExecContext(ctx, sql)
 		if err != nil {
@@ -428,7 +447,7 @@ func (h *HexStorage) MapRemoveData(data *HexLocation) (err error) {
 		return err
 	}
 
-	for key, _ := range data.Data {
+	for key, _ := range data.LocalData {
 		sql := fmt.Sprintf("DELETE FROM mapdata WHERE x=%d AND y=%d AND key='%s';", data.X, data.Y, key)
 		_, err = tx.ExecContext(ctx, sql)
 		if err != nil {
