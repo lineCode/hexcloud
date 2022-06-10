@@ -17,7 +17,7 @@ message HexLocation {
 
 message HexInfo {
     string ID = 1;
-    map<string, string> Data = 3;
+    map<string, string> Data = 2;
 }
 
 message HexInfoList {

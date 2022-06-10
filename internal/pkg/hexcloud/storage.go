@@ -107,6 +107,48 @@ func (h *HexStorage) AddHexagonToRepo(hexInfo *HexInfo) {
 
 }
 
+func (h *HexStorage) GetHexagonInfoAll() (hexInfoList *HexInfoList) {
+	sql := "SELECT * FROM hexrepo;"
+	rows, err := h.Database.Query(sql)
+	defer rows.Close()
+
+	if err != nil {
+		glog.Warningf("Warning: %s - %s\n", sql, err)
+		return
+	}
+
+	len := h.SizeRepo()
+	hexInfoList = &HexInfoList{}
+	hexInfoList.HexInfo = make([]*HexInfo, len)
+
+	for rows.Next() {
+		hexInfo := &HexInfo{}
+		err = rows.Scan(&hexInfo.ID)
+		if err != nil {
+			glog.Warningf("Error storing %s - %s\n", sql, err)
+			return
+		}
+
+		sql2 := fmt.Sprintf("SELECT * FROM hexdata WHERE hexid = '%s';", hexInfo.ID)
+		glog.Infof("%s\n", sql)
+		rows2, err := h.Database.Query(sql2)
+		if err != nil {
+			glog.Warningf("Error storing %s - %s\n", sql, err)
+			return
+		}
+
+		hexInfo.Data = make(map[string]string)
+		for rows2.Next() {
+			var id, key, value string
+			rows2.Scan(&id, &key, &value)
+			hexInfo.Data[key] = value
+		}
+
+		hexInfoList.HexInfo = append(hexInfoList.HexInfo, hexInfo)
+	}
+	return
+}
+
 func (h *HexStorage) GetHexagonInfo(hexID string) (hexInfo *HexInfo) {
 	sql := fmt.Sprintf("SELECT * FROM hexrepo WHERE id = '%s';", hexID)
 	rows, err := h.Database.Query(sql)

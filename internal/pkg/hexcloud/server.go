@@ -136,7 +136,7 @@ func (s *Server) RepoGetHexagonInfo(ctx context.Context, hexIDList *HexIDList) (
 
 func (s *Server) RepoGetAllHexagonInfo(ctx context.Context, empty *Empty) (hexInfoList *HexInfoList, err error) {
 
-	glog.Warningln("not implemented")
+	hexInfoList = s.Storage.GetHexagonInfoAll()
 
 	return hexInfoList, err
 }
